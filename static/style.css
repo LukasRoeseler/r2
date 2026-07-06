@@ -104,8 +104,10 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 0 0 1rem; }
 
 /* Layered logo: black ink image + color layer shown through the blue-parts
-   mask, so the accent color can animate while staying pixel-aligned. */
-.hero-logo {
+   mask, so the accent color can animate while staying pixel-aligned.
+   The .hero h1 selector must not win over the auto margins (centering). */
+.hero-logo,
+.hero h1.hero-logo {
   position: relative; max-width: 620px; margin: 0 auto 1.2rem;
 }
 .hero-logo img { display: block; width: 100%; height: auto; }
@@ -119,10 +121,10 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   mask-repeat: no-repeat;
   animation: logo-cycle 60s linear infinite;
 }
-@media (prefers-reduced-motion: reduce) { .logo-color { animation: none; } }
 /* Blue -> green -> fluorescent orange -> light reddish purple ->
    friendly red -> grey -> blue; one stop every 10 s, drifting so slowly
-   the change is imperceptible. */
+   the change is imperceptible. A pure color fade (no motion), so it is
+   deliberately not gated behind prefers-reduced-motion. */
 @keyframes logo-cycle {
   0%      { background-color: #009fd4; }
   16.67%  { background-color: #02c665; }
@@ -356,7 +358,7 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 
 /* Responsive */
 @media (max-width: 900px) {
-  .article-layout { grid-template-columns: 1fr; }
+  .article-layout { grid-template-columns: minmax(0, 1fr); }
   .issue-feature, .issue-header { grid-template-columns: 1fr; }
   .issue-cover img, .issue-cover-lg { max-width: 190px; }
 }
@@ -379,4 +381,12 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   .nav-cta { margin: .6rem 0 0; }
   .hero { padding: 3rem 0 2.6rem; }
   .pdf-frame { height: 70vh; }
+}
+@media (max-width: 430px) {
+  /* Stack the split bubble so long labels never overflow tiny screens. */
+  .btn-split { flex-direction: column; width: 100%; max-width: 300px; border-radius: 26px; }
+  .btn-split a { text-align: center; }
+  .split-right { border-left: none; border-top: 1.5px solid var(--accent); }
+  .hero-actions { flex-direction: column; align-items: center; }
+  .hero-actions .btn-ghost { width: 100%; max-width: 300px; text-align: center; }
 }
