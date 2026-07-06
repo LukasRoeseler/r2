@@ -321,6 +321,7 @@ def discover_page_paths(nav):
     skip = {
         "issues", "issue/current", "issue/archive", "search", "login",
         "user/register", "index", "home", "announcement",
+        "about/contact",  # not mirrored; keep the OJS site as the contact point
     }
     paths = []
     for item in nav:
@@ -329,7 +330,7 @@ def discover_page_paths(nav):
             continue
         if p not in paths:
             paths.append(p)
-    for extra in ("legal-disclosure", "about/contact"):
+    for extra in ("legal-disclosure",):
         if extra not in paths:
             paths.append(extra)
     return paths
@@ -387,28 +388,34 @@ def scrape_issues():
 
     for issue in issues:
         print("Scraping issue %s ..." % issue["id"])
-        doc = soup_of(issue["ojsUrl"])
-        toc = doc.select_one(".obj_issue_toc")
-        if toc is None:
-            raise RuntimeError("no TOC on issue %s" % issue["id"])
-        published = toc.select_one(".heading .published .value")
-        issue["datePublished"] = text_of(published)
-        desc = toc.select_one(".heading .description")
-        if desc and not issue["descriptionHtml"]:
-            issue["descriptionHtml"] = clean_fragment(desc, issue["ojsUrl"])
-        for section in toc.select(".sections .section"):
-            heading = section.find("h2")
-            entry = {"title": text_of(heading), "articles": []}
-            for item in section.select(".obj_article_summary"):
-                a = item.select_one(".title a")
-                if not a:
-                    continue
-                m = re.match(r"article/view/([^/]+)",
-                             journal_path(a["href"]) or "")
-                if m:
-                    entry["articles"].append(m.group(1))
-            if entry["articles"]:
-                issue["sections"].append(entry)
+        try:
+            doc = soup_of(issue["ojsUrl"])
+            toc = doc.select_one(".obj_issue_toc")
+            if toc is None:
+                raise RuntimeError("no TOC on issue %s" % issue["id"])
+            published = toc.select_one(".heading .published .value")
+            issue["datePublished"] = text_of(published)
+            desc = toc.select_one(".heading .description")
+            if desc and not issue["descriptionHtml"]:
+                issue["descriptionHtml"] = clean_fragment(desc, issue["ojsUrl"])
+            for section in toc.select(".sections .section"):
+                heading = section.find("h2")
+                entry = {"title": text_of(heading), "articles": []}
+                for item in section.select(".obj_article_summary"):
+                    a = item.select_one(".title a")
+                    if not a:
+                        continue
+                    m = re.match(r"article/view/([^/]+)",
+                                 journal_path(a["href"]) or "")
+                    if m:
+                        entry["articles"].append(m.group(1))
+                if entry["articles"]:
+                    issue["sections"].append(entry)
+        except Exception as e:  # noqa: BLE001 - one broken issue must not
+            # take down the whole harvest (e.g. after an OJS theme upgrade
+            # renames a class this selector relies on).
+            print("  issue %s TOC scrape failed, skipping its articles: %s"
+                  % (issue["id"], e), file=sys.stderr)
     return issues
 
 
@@ -416,14 +423,17 @@ def scrape_article(url_path, issue):
     url = JOURNAL + "/article/view/" + url_path
     print("Scraping article %s ..." % url_path)
     doc = soup_of(url)
-    det = doc.select_one(".obj_article_details")
+    # Fall back to the generic <article> inside .page_article if a future
+    # OJS theme update drops the .obj_article_details class name.
+    det = (doc.select_one(".obj_article_details")
+           or doc.select_one(".page_article article"))
     if det is None:
         raise RuntimeError("no article details on %s" % url)
 
     art = {
         "urlPath": url_path,
         "submissionId": "",
-        "title": text_of(det.select_one("h1.page_title")),
+        "title": text_of(det.select_one("h1.page_title") or det.find("h1")),
         "subtitle": text_of(det.select_one("h2.subtitle")),
         "authors": [],
         "doi": "",
@@ -610,15 +620,22 @@ def mirror_pdfs(articles):
             target = os.path.join(PDF_DIR, galley["localPdf"])
             try:
                 r = get(galley["downloadUrl"])
+                if not r.content.startswith(b"%PDF"):
+                    raise RuntimeError("%s did not return a PDF"
+                                       % galley["downloadUrl"])
             except RuntimeError as e:
+                # Don't let one flaky download (or a renamed download route
+                # after an OJS upgrade) abort mirroring of every other PDF.
+                # A genuinely missing file is still caught below by the
+                # final "missing mirrored PDFs" sanity check, which blocks
+                # publishing.
                 if os.path.exists(target):
                     print("  keeping existing %s (%s)" % (galley["localPdf"], e),
                           file=sys.stderr)
-                    continue
-                raise
-            if not r.content.startswith(b"%PDF"):
-                raise RuntimeError("%s did not return a PDF"
-                                   % galley["downloadUrl"])
+                else:
+                    print("  WARNING: could not mirror %s: %s"
+                          % (galley["localPdf"], e), file=sys.stderr)
+                continue
             if (os.path.exists(target)
                     and os.path.getsize(target) == len(r.content)):
                 continue
@@ -656,6 +673,15 @@ def monthly_timeline(sub_id, metric, date_end):
 
 
 def fetch_stats(articles):
+    """PDF-download counts per article, from the authenticated OJS API.
+
+    Abstract-page views are intentionally not fetched: OJS only counts a view
+    when someone loads the abstract page on ejournals.uni-muenster.de itself,
+    which a mirror visitor never does, so the number would be permanently
+    stuck and misleading here. Downloads remain accurate because the
+    mirror's Download PDF button links straight to the canonical OJS
+    download URL, which OJS does count.
+    """
     if not API_KEY:
         print("OJS_API_KEY not set - skipping usage statistics.")
         return {}
@@ -671,17 +697,13 @@ def fetch_stats(articles):
         sid = art["submissionId"]
         if not sid:
             continue
-        views = monthly_timeline(sid, "abstract", date_end)
         downloads = monthly_timeline(sid, "galley", date_end)
         stats[sid] = {
-            "abstractViews": sum(views.values()),
             "pdfDownloads": sum(downloads.values()),
-            "monthlyViews": views,
             "monthlyDownloads": downloads,
             "asOf": date_end,
         }
-        print("  %s: %d views, %d downloads"
-              % (sid, stats[sid]["abstractViews"], stats[sid]["pdfDownloads"]))
+        print("  %s: %d downloads" % (sid, stats[sid]["pdfDownloads"]))
     return stats
 
 
@@ -701,33 +723,55 @@ def main():
     for d in (DATA_DIR, PDF_DIR, IMG_DIR):
         os.makedirs(d, exist_ok=True)
 
+    # Every scrape_* call below is isolated with try/except: a single broken
+    # selector (e.g. after OJS is upgraded and a theme class gets renamed)
+    # should degrade that one item, not crash the whole harvest. The sanity
+    # checks further down are what actually block publishing, by looking at
+    # the aggregate result rather than any individual exception.
     journal = scrape_journal()
     page_paths = discover_page_paths(journal["nav"])
     PAGE_SLUGS.update(page_paths)
 
-    issues = scrape_issues()
+    try:
+        issues = scrape_issues()
+    except Exception as e:  # noqa: BLE001
+        print("issue archive scrape failed entirely: %s" % e, file=sys.stderr)
+        issues = []
+
     articles = []
     for issue in issues:
         for section in issue["sections"]:
             for url_path in section["articles"]:
-                articles.append(scrape_article(url_path, issue))
+                try:
+                    articles.append(scrape_article(url_path, issue))
+                except Exception as e:  # noqa: BLE001
+                    print("  article %s scrape failed, skipping: %s"
+                          % (url_path, e), file=sys.stderr)
 
     pages = []
     for path in page_paths:
         try:
             pages.append(scrape_page(path))
-        except RuntimeError as e:
+        except Exception as e:  # noqa: BLE001
             print("  page /%s failed: %s" % (path, e), file=sys.stderr)
 
     team = {"sections": []}
     for page in pages:
         if page["slug"] == "about/editorialTeam":
-            team = parse_team(page["html"])
+            try:
+                team = parse_team(page["html"])
+            except Exception as e:  # noqa: BLE001
+                print("  editorial team parse failed: %s" % e, file=sys.stderr)
             if not team["sections"]:
                 print("  editorial team page did not parse into sections; "
                       "the generic page layout will be used", file=sys.stderr)
 
-    announcements = scrape_announcements()
+    try:
+        announcements = scrape_announcements()
+    except Exception as e:  # noqa: BLE001
+        print("announcements scrape failed entirely: %s" % e, file=sys.stderr)
+        announcements = []
+
     mirror_pdfs(articles)
     stats = fetch_stats(articles)
 

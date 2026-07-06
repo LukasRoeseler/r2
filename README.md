@@ -8,12 +8,16 @@ A beautiful, static, self-updating mirror of the journal
   daily — issues, articles, abstracts, static pages, announcements, PDFs, and
   usage statistics — and redeploys the site.
 - **Submit manuscript** buttons lead to the OJS submission portal.
-- **View PDF** leads to the canonical PDF on OJS; each article page also embeds
-  a [pdf.js](https://mozilla.github.io/pdf.js/) viewer (zoom, search, paging)
-  that renders a mirrored, same-origin copy of the PDF.
-- **Usage statistics** (abstract views, PDF downloads) come from the
-  authenticated OJS REST API — the same `OJS_API_KEY` pattern as the
-  [r2d2 dashboard](https://github.com/LukasRoeseler/r2d2).
+- **Download PDF** leads to the canonical PDF download URL on OJS (so OJS's
+  own download counter still increments); each article page also embeds a
+  [pdf.js](https://mozilla.github.io/pdf.js/) viewer (zoom, search, paging)
+  that renders a mirrored, same-origin copy of the PDF for in-page reading.
+- **Usage statistics** (PDF downloads only) come from the authenticated OJS
+  REST API — the same `OJS_API_KEY` pattern as the
+  [r2d2 dashboard](https://github.com/LukasRoeseler/r2d2). Abstract-page
+  views are deliberately not shown: OJS only counts a view when someone
+  loads the abstract page on ejournals.uni-muenster.de itself, so a mirror
+  visitor never registers one and the number would be permanently stuck.
 
 ## How it works
 
@@ -68,3 +72,15 @@ the domain's DNS at GitHub Pages.
   removed). To upgrade, download a newer `pdfjs-*-legacy-dist.zip` from the
   [pdf.js releases](https://github.com/mozilla/pdf.js/releases) and repeat the
   trim.
+- **OJS upgrade resilience.** `fetch.py` scrapes OJS's default-theme HTML,
+  whose class names (`.obj_article_details`, `.obj_issue_toc`, ...) have been
+  stable across OJS 3.1–3.3 and are expected to keep working after an upgrade
+  to 3.4/3.5. To be safe regardless, every scrape call is isolated with
+  try/except: one broken selector degrades just that issue, article, or page
+  (logged to the workflow run's output) instead of crashing the whole
+  harvest, and a couple of the most load-bearing selectors (article title,
+  article container) have a generic-HTML fallback. The site is only ever
+  refused a publish if the *aggregate* result looks broken (no issues, no
+  articles, missing PDFs) — see the sanity checks at the end of
+  `fetch.py`'s `main()`. If OJS is upgraded and something still looks off,
+  check the failed run's log for which selector stopped matching.

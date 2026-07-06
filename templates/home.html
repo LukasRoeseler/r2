@@ -1,12 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero">
+<section class="hero hero-compact">
   <div class="wrap">
-    <p class="hero-kicker">Diamond Open Access · ISSN {{ journal.issn }}</p>
-    <h1 class="hero-logo" aria-label="{{ journal.name }}">
-      <img src="{{ base }}static/img/logo-black.png" alt="" width="1841" height="355">
-      <span class="logo-color" aria-hidden="true"></span>
-    </h1>
     <p class="hero-tagline">{{ journal.description }}</p>
     <div class="hero-actions">
       <span class="btn-split">
@@ -20,24 +15,24 @@
   </div>
 </section>
 
-{% if current_issue %}
+{% if issues %}
 <section class="section">
   <div class="wrap">
     <div class="section-head">
-      <h2>Current issue</h2>
-      <a class="more" href="{{ base }}issues/">All issues →</a>
+      <h2>Issues</h2>
     </div>
-    <div class="issue-feature">
-      {% if current_issue.cover %}
-      <a href="{{ base }}issues/{{ current_issue.id }}/" class="issue-cover">
-        <img src="{{ current_issue.cover }}" alt="Cover of {{ current_issue.title }}">
+    {% for issue in issues %}
+    <div class="issue-feature{% if not loop.first %} issue-feature-follow{% endif %}">
+      {% if issue.cover %}
+      <a href="{{ base }}issues/{{ issue.id }}/" class="issue-cover">
+        <img src="{{ issue.cover }}" alt="Cover of {{ issue.title }}">
       </a>
       {% endif %}
       <div class="issue-feature-body">
-        <h3><a href="{{ base }}issues/{{ current_issue.id }}/">{{ current_issue.title }}</a></h3>
-        {% if current_issue.datePublished %}<p class="meta">Published {{ current_issue.datePublished }}</p>{% endif %}
+        <h3><a href="{{ base }}issues/{{ issue.id }}/">{{ issue.title }}</a></h3>
+        {% if issue.datePublished %}<p class="meta">Published {{ issue.datePublished }}</p>{% endif %}
         <ul class="article-list">
-          {% for section in current_issue.sections %}
+          {% for section in issue.sections %}
             {% for path in section.articles %}
               {% set a = articles_by_path[path] %}
               <li class="article-card">
@@ -51,6 +46,7 @@
         </ul>
       </div>
     </div>
+    {% endfor %}
   </div>
 </section>
 {% endif %}

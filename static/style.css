@@ -97,6 +97,7 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   padding: 4.5rem 0 4rem;
   text-align: center;
 }
+.hero-compact { padding: 3.4rem 0 3rem; }
 .hero-kicker {
   text-transform: uppercase; letter-spacing: .14em; font-size: .78rem;
   font-weight: 700; color: var(--accent); margin: 0 0 .8rem;
@@ -111,6 +112,9 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   position: relative; max-width: 620px; margin: 0 auto 1.2rem;
 }
 .hero-logo img { display: block; width: 100%; height: auto; }
+/* Smaller variant used on the About page, above the page's own h1. */
+.about-brand { text-align: center; margin-bottom: 2.2rem; }
+.hero-logo-sm { max-width: 380px; }
 .logo-color {
   position: absolute; inset: 0; background-color: #009fd4;
   -webkit-mask-image: url("img/logo-mask.png");
@@ -267,14 +271,9 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 /* Usage chart */
 .stats-chart { margin-top: .8rem; }
 .stats-chart svg { display: block; }
-.bar-views { fill: #7fb3d8; }
 .bar-downloads { fill: var(--accent-dark); }
 .chart-label { font-size: 9px; fill: var(--muted); font-family: var(--sans); }
 .chart-legend { font-size: .78rem; color: var(--muted); margin: .3rem 0 0; }
-.legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin: 0 .25rem 0 .6rem; vertical-align: -1px; }
-.legend-dot:first-child { margin-left: 0; }
-.legend-views { background: #7fb3d8; }
-.legend-downloads { background: var(--accent-dark); }
 
 /* Editorial team */
 .team-section { margin-bottom: 2.6rem; }
@@ -319,7 +318,8 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .announcement-item p { color: var(--ink-soft); margin: 0; }
 
 /* Prose (scraped OJS / Quarto content) */
-.prose { font-size: 1rem; }
+.prose { font-size: 1rem; overflow-wrap: break-word; }
+.prose a { overflow-wrap: break-word; word-break: break-word; }
 .prose h1 { font-size: 1.7rem; }
 .prose h2 { font-size: 1.4rem; margin-top: 2rem; }
 .prose h3 { font-size: 1.15rem; margin-top: 1.5rem; }
@@ -380,6 +380,8 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   .dropdown { position: static; display: block; border: none; box-shadow: none; padding-left: 1rem; }
   .nav-cta { margin: .6rem 0 0; }
   .hero { padding: 3rem 0 2.6rem; }
+  .hero-compact { padding: 2.4rem 0 2.2rem; }
+  .hero-logo-sm { max-width: 280px; }
   .pdf-frame { height: 70vh; }
 }
 @media (max-width: 430px) {

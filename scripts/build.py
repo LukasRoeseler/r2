@@ -138,35 +138,39 @@ def main():
 
 
 def stats_chart(stats, width=256, height=96):
-    """Inline SVG grouped-bar chart of monthly views and downloads."""
-    views = stats.get("monthlyViews") or {}
+    """Inline SVG bar chart of monthly PDF downloads.
+
+    Abstract views are deliberately not charted: OJS only counts a view when
+    someone loads the abstract page on ejournals.uni-muenster.de itself, so
+    a mirror visitor never registers one and the number would be misleading
+    here. Downloads are still meaningful because the mirror's Download PDF
+    button links straight to the canonical OJS download URL, which OJS does
+    count.
+    """
     downloads = stats.get("monthlyDownloads") or {}
-    months = sorted(set(views) | set(downloads))
+    months = sorted(downloads)
     if len(months) < 2:
         return ""
-    peak = max([*views.values(), *downloads.values(), 1])
+    peak = max([*downloads.values(), 1])
     label_h = 14
     plot_h = height - label_h
     group_w = width / len(months)
-    bar_w = max(2.0, min(9.0, group_w / 2 - 1.5))
+    bar_w = max(3.0, min(14.0, group_w - 3.0))
     bars = []
     for i, month in enumerate(months):
-        x0 = i * group_w + (group_w - 2 * bar_w - 1) / 2
-        for offset, series, css in ((0, views, "bar-views"),
-                                    (bar_w + 1, downloads, "bar-downloads")):
-            value = series.get(month, 0)
-            h = plot_h * value / peak
-            bars.append(
-                '<rect class="%s" x="%.1f" y="%.1f" width="%.1f" height="%.1f">'
-                '<title>%s: %d %s</title></rect>'
-                % (css, x0 + offset, plot_h - h, bar_w, max(h, 0.5), month,
-                   value, "views" if css == "bar-views" else "downloads"))
+        value = downloads.get(month, 0)
+        h = plot_h * value / peak
+        x0 = i * group_w + (group_w - bar_w) / 2
+        bars.append(
+            '<rect class="bar-downloads" x="%.1f" y="%.1f" width="%.1f" height="%.1f">'
+            '<title>%s: %d downloads</title></rect>'
+            % (x0, plot_h - h, bar_w, max(h, 0.5), month, value))
     labels = (
         '<text class="chart-label" x="0" y="%d">%s</text>'
         '<text class="chart-label" x="%d" y="%d" text-anchor="end">%s</text>'
         % (height - 2, months[0], width, height - 2, months[-1]))
     return ('<svg viewBox="0 0 %d %d" width="100%%" role="img" '
-            'aria-label="Monthly views and downloads">%s%s</svg>'
+            'aria-label="Monthly PDF downloads">%s%s</svg>'
             % (width, height, "".join(bars), labels))
 
 
@@ -222,7 +226,7 @@ def build_nav(nav_items, pages):
     groups = {
         "about": {"label": "About", "children": [
             "about", "about/editorialTeam", "mentorshipprogram",
-            "constitution", "about/contact",
+            "constitution",
         ]},
     }
     used = set()

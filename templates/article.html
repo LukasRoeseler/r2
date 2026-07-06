@@ -60,23 +60,21 @@
       <aside class="article-aside">
         {% if article.pdf %}
         <div class="aside-box aside-actions">
-          <a class="btn btn-primary btn-block" href="{{ article.pdf.downloadUrl }}">View PDF</a>
+          <a class="btn btn-primary btn-block" href="{{ article.pdf.downloadUrl }}">Download PDF</a>
         </div>
         {% endif %}
 
         {% if article.stats %}
         <div class="aside-box">
           <h2>Usage</h2>
-          <p class="stat-row"><span class="stat-num">{{ article.stats.abstractViews }}</span> abstract views</p>
           <p class="stat-row"><span class="stat-num">{{ article.stats.pdfDownloads }}</span> PDF downloads</p>
           {% if article.statsChart %}
           <div class="stats-chart">{{ article.statsChart | safe }}</div>
-          <p class="chart-legend">
-            <span class="legend-dot legend-views"></span> views / month
-            <span class="legend-dot legend-downloads"></span> downloads / month
-          </p>
+          <p class="chart-legend">downloads per month</p>
           {% endif %}
-          <p class="meta">OJS statistics as of {{ article.stats.asOf }}</p>
+          <p class="meta">OJS statistics as of {{ article.stats.asOf }} · counted on the
+            <a href="{{ article.ojsUrl }}">journal site</a>, including downloads
+            started from this mirror&#8217;s Download PDF button.</p>
         </div>
         {% endif %}
 

@@ -3,6 +3,15 @@
 {% block content %}
 <div class="wrap page-body page-narrow">
   <nav class="breadcrumbs"><a href="{{ base }}">Home</a> / <span>{{ page.title }}</span></nav>
+  {% if page.slug == 'about' %}
+  <div class="about-brand">
+    <p class="hero-kicker">Diamond Open Access · ISSN {{ journal.issn }}</p>
+    <div class="hero-logo hero-logo-sm" role="img" aria-label="{{ journal.name }}">
+      <img src="{{ base }}static/img/logo-black.png" alt="" width="1841" height="355">
+      <span class="logo-color" aria-hidden="true"></span>
+    </div>
+  </div>
+  {% endif %}
   <h1 class="page-heading">{{ page.title }}</h1>
   <div class="prose">{{ page.html | safe }}</div>
 </div>
