@@ -19,7 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 OUT = os.path.join(ROOT, "_site")
 
-BASE = os.environ.get("BASE_URL", "/replication-research-mirror/")
+BASE = os.environ.get("BASE_URL", "/r2/")
 if not BASE.startswith("/"):
     BASE = "/" + BASE
 if not BASE.endswith("/"):
