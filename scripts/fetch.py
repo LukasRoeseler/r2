@@ -529,21 +529,18 @@ def _team_slug(name):
 
 def parse_team(page_html):
     """Turn the editorial-team page (p>strong headings + ul lists) into
-    structured sections. Sections before 'Advisory Board' get photo circles.
+    structured sections. Every section gets photo circles; members without
+    an uploaded photo show an initials placeholder.
     """
     doc = BeautifulSoup(page_html, "html.parser")
     sections = []
     current = None
-    advisory_seen = False
     for node in doc.find_all(["p", "ul"], recursive=False):
         if node.name == "p":
             strong = node.find("strong")
             if strong and text_of(strong) == text_of(node):
-                title = text_of(strong)
-                if "advisory" in title.lower():
-                    advisory_seen = True
-                current = {"title": title, "members": [],
-                           "hasPhotos": not advisory_seen, "noteHtml": ""}
+                current = {"title": text_of(strong), "members": [],
+                           "hasPhotos": True, "noteHtml": ""}
                 sections.append(current)
             elif current is not None:
                 current["noteHtml"] += str(node)

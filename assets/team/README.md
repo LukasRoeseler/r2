@@ -15,5 +15,5 @@ flavio-azevedo.webp
 ```
 
 Square images look best (they are cropped to a circle, `object-fit: cover`).
-Members without a photo show an initials placeholder. Advisory Board members
-are listed without photos.
+Members without a photo show an initials placeholder. All sections, including
+the Advisory Board, use photo circles.
