@@ -17,12 +17,6 @@
     },
     {
      "affiliation": "University of Münster",
-     "name": "Prince Oppong Boakye",
-     "roles": "Research Intern",
-     "slug": "prince-oppong-boakye"
-    },
-    {
-     "affiliation": "University of Münster",
      "name": "Neele Kolber",
      "roles": "Research Intern",
      "slug": "neele-kolber"
@@ -302,9 +296,15 @@
      "name": "Tobias Dienlin",
      "roles": "",
      "slug": "tobias-dienlin"
+    },
+    {
+     "affiliation": "University of Münster",
+     "name": "Prince Oppong Boakye",
+     "roles": "Research Intern",
+     "slug": "prince-oppong-boakye"
     }
    ],
-   "noteHtml": "<p>Advisory Board members are invited by the Senior Editors and the EiC. Their tasks include participating in an annual, 90-minute online meeting with the editorial board to discuss journal strategy, offering symbolic support by promoting R2 within their networks, and suggesting potential reviewers or associate editors to improve our editorial workflow. Advisory board members are publicly credited on <a href=\"https://forrt.org/contributors\">FORRT’s Contributors</a> page.</p><p><strong>Institutional OJS Support</strong><br/>We are grateful to the University of Münster's OJS team, consisting of Stephanie Klötgen, Elisabeth Sawatzky, Jens Unkenholz and Claudia Mohr, for their wonderful support in working with Open Journal Systems.</p>",
+   "noteHtml": "<p>Advisory Board members are invited by the Senior Editors and the EiC. Their tasks include participating in an annual, 90-minute online meeting with the editorial board to discuss journal strategy, offering symbolic support by promoting R2 within their networks, and suggesting potential reviewers or associate editors to improve our editorial workflow. Advisory board members are publicly credited on <a href=\"https://forrt.org/contributors\">FORRT’s Contributors</a> page.</p><p>Former Members</p><p><strong>Institutional OJS Support</strong><br/>We are grateful to the University of Münster's OJS team, consisting of Stephanie Klötgen, Elisabeth Sawatzky, Jens Unkenholz and Claudia Mohr, for their wonderful support in working with Open Journal Systems.</p>",
    "title": "Advisory Board"
   }
  ]
