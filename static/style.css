@@ -80,16 +80,35 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 }
 .site-nav a:not(.btn):hover { color: #fff; background: rgba(255, 255, 255, .1); text-decoration: none; }
 .nav-cta { margin-left: .5rem; }
-.dropdown {
-  position: absolute; top: 100%; left: 0; min-width: 210px; background: #2d353d;
-  border: 1px solid #1b2127; border-radius: var(--radius); box-shadow: var(--shadow);
-  list-style: none; margin: 0; padding: .4rem; display: none; z-index: 60;
+
+/* "About"-style dropdowns use <details>, so they open on tap/click on every
+   device - a hover-only menu is unreachable on touchscreens (tablets,
+   landscape phones, anything wider than the mobile breakpoint below). */
+.nav-dropdown { position: relative; }
+.nav-dropdown > summary {
+  display: block; padding: .45rem .7rem; color: #c9d4de;
+  font-weight: 600; font-size: .93rem; border-radius: 6px;
+  cursor: pointer; list-style: none; user-select: none;
 }
+.nav-dropdown > summary::-webkit-details-marker { display: none; }
+.nav-dropdown > summary::after { content: "▾"; font-size: .7em; margin-left: .35em; opacity: .8; }
+.nav-dropdown > summary:hover,
+.nav-dropdown[open] > summary { color: #fff; background: rgba(255, 255, 255, .1); }
+.dropdown {
+  min-width: 210px; background: #2d353d;
+  border: 1px solid #1b2127; border-radius: var(--radius); box-shadow: var(--shadow);
+  list-style: none; margin: 0; padding: .4rem; z-index: 60;
+  display: none;
+}
+/* Explicit show/hide instead of relying on the browser's native <details>
+   content-hiding default - some engines don't apply it reliably here. */
+.nav-dropdown[open] > .dropdown { display: block; }
 .dropdown a:not(.btn):hover { background: rgba(255, 255, 255, .12); }
-.has-children:hover .dropdown,
-.has-children:focus-within .dropdown { display: block; }
 .dropdown a { white-space: nowrap; }
 .nav-toggle, .nav-toggle-label { display: none; }
+@media (min-width: 761px) {
+  .dropdown { position: absolute; top: 100%; left: 0; }
+}
 
 /* Hero */
 .hero {
@@ -423,7 +442,9 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   .site-nav { display: none; width: 100%; margin: 0; }
   .nav-toggle:checked ~ .site-nav { display: block; }
   .site-nav > ul { flex-direction: column; align-items: stretch; gap: 0; padding-bottom: .8rem; }
-  .dropdown { position: static; display: block; border: none; box-shadow: none; padding-left: 1rem; }
+  .site-nav a:not(.btn), .nav-dropdown > summary { padding: .75rem .7rem; font-size: 1rem; }
+  .dropdown { border: none; box-shadow: none; padding-left: 1rem; }
+  .nav-toggle-label { padding: .8rem; }
   .nav-cta { margin: .6rem 0 0; }
   .hero { padding: 3rem 0 2.6rem; }
   .hero-compact { padding: 2.4rem 0 2.2rem; }
