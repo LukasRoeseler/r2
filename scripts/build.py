@@ -41,6 +41,83 @@ def _rebase(value):
     return value
 
 
+FURTHER_PROJECTS = [
+    {
+        "title": "Replication Journal Federation",
+        "img": "project-rjf.png",
+        "url": "https://forrt.org/rjf/",
+        "blurb": "A federation of journals championing replication "
+                 "research together.",
+    },
+    {
+        "title": "FLoRA Explorer",
+        "img": "project-flora.png",
+        "url": "https://forrt.org/flora-explorer/",
+        "blurb": "Browse FORRT's Library of Reproduction and Replication "
+                 "Attempts.",
+    },
+    {
+        "title": "Handbook for Reproduction and Replication Studies",
+        "img": "project-handbook.png",
+        "url": "https://forrt.org/replication-handbook/",
+        "blurb": "Practical, field-tested guidance for planning and "
+                 "conducting replication work.",
+    },
+    {
+        "title": "FORRT Replication Hub",
+        "img": "project-hub.png",
+        "url": "https://forrt.org/replication-hub/",
+        "blurb": "Track, explore, disseminate, and conduct replications "
+                 "in one place.",
+    },
+]
+
+SUBMISSION_RESOURCES = [
+    {
+        "title": "Pre-Submission Inquiry",
+        "blurb": "Not sure your project is a fit? Check with the editors "
+                 "before you write the full manuscript.",
+        "url": "https://docs.google.com/forms/d/e/1FAIpQLScktynmACLlyYc7Ezp1dmcEWoyvr02Xy2D59F8o3JZyhCCaGw/viewform",
+    },
+    {
+        "title": "Cover Letter Template",
+        "blurb": "An optional template for the cover letter accompanying "
+                 "your submission.",
+        "url": "https://ejournals.uni-muenster.de/replicationresearch/libraryFiles/downloadPublic/180",
+    },
+    {
+        "title": "Manuscript Template",
+        "blurb": "An optional template for reproductions and "
+                 "replications, hosted on OSF.",
+        "url": "https://osf.io/brxtd/overview",
+    },
+]
+
+
+def normalize_article_stats(stats):
+    """Fill in missing keys with None so templates never render a blank
+    number, and compute the combined view count shown in the compact
+    article-card pill (OJS abstract views + GoatCounter mirror views).
+    """
+    if not stats:
+        return None
+    ojs_views = stats.get("ojsViews")
+    mirror_views = stats.get("mirrorViews")
+    parts, total = [], 0
+    if ojs_views is not None:
+        total += ojs_views
+        parts.append("%d on OJS" % ojs_views)
+    if mirror_views is not None:
+        total += mirror_views
+        parts.append("%d on this mirror" % mirror_views)
+    stats["ojsViews"] = ojs_views
+    stats["mirrorViews"] = mirror_views
+    stats["pdfDownloads"] = stats.get("pdfDownloads")
+    stats["totalViews"] = total if parts else None
+    stats["viewsBreakdown"] = " · ".join(parts) if parts else ""
+    return stats
+
+
 def main():
     journal = load("journal.json")
     issues = load("issues.json")
@@ -49,6 +126,11 @@ def main():
     announcements = load("announcements.json")
     stats = load("stats.json")
 
+    submissions = None
+    submissions_path = os.path.join(DATA, "submissions.json")
+    if os.path.exists(submissions_path):
+        submissions = load("submissions.json")
+
     team = {}
     team_path = os.path.join(DATA, "team.json")
     if os.path.exists(team_path):
@@ -56,7 +138,7 @@ def main():
 
     articles_by_path = {a["urlPath"]: a for a in articles}
     for a in articles:
-        a["stats"] = stats.get(a["submissionId"]) or None
+        a["stats"] = normalize_article_stats(stats.get(a["submissionId"]))
         a["statsChart"] = stats_chart(a["stats"]) if a["stats"] else ""
         pdf = next((g for g in a["galleys"] if g["localPdf"]), None)
         a["pdf"] = pdf
@@ -98,10 +180,10 @@ def main():
         with open(target, "w", encoding="utf-8") as fh:
             fh.write(html)
 
-    current = issues[0] if issues else None
     render("home.html", "index.html",
-           current_issue=current, articles_by_path=articles_by_path,
-           recent_announcements=announcements[:3])
+           articles_by_path=articles_by_path,
+           recent_announcements=announcements[:3],
+           further_projects=FURTHER_PROJECTS)
 
     render("issues.html", os.path.join("issues", "index.html"))
     for issue in issues:
@@ -119,10 +201,25 @@ def main():
                os.path.join("announcements", ann["id"], "index.html"),
                announcement=ann)
 
+    submissions_charts = None
+    if submissions and submissions.get("monthly"):
+        submissions_charts = {
+            "monthlyChart": simple_bar_chart(
+                submissions["monthly"], "bar-submissions",
+                "New submissions per month"),
+            "statusBar": status_stacked_bar(submissions["statusCounts"]),
+            "statusCounts": submissions["statusCounts"],
+            "total": submissions["total"],
+        }
+
     for page in pages:
         out = os.path.join(*page["slug"].split("/"), "index.html")
         if page["slug"] == "about/editorialTeam" and team.get("sections"):
             render("team.html", out, page=page, team=team)
+        elif page["slug"] == "about/submissions":
+            render("submissions.html", out, page=page,
+                   resources=SUBMISSION_RESOURCES,
+                   submissions=submissions_charts)
         else:
             render("page.html", out, page=page)
 
@@ -138,40 +235,96 @@ def main():
 
 
 def stats_chart(stats, width=256, height=96):
-    """Inline SVG bar chart of monthly PDF downloads.
+    """Inline SVG grouped-bar chart of monthly OJS views and PDF downloads.
 
-    Abstract views are deliberately not charted: OJS only counts a view when
-    someone loads the abstract page on ejournals.uni-muenster.de itself, so
-    a mirror visitor never registers one and the number would be misleading
-    here. Downloads are still meaningful because the mirror's Download PDF
-    button links straight to the canonical OJS download URL, which OJS does
-    count.
+    Mirror-page views (GoatCounter) are not charted here - GoatCounter's
+    tracking only started once the snippet was added, so a full monthly
+    history isn't meaningful yet; the total is shown as a plain number
+    instead (see the article page's Usage box).
     """
+    views = stats.get("monthlyOjsViews") or {}
     downloads = stats.get("monthlyDownloads") or {}
-    months = sorted(downloads)
+    months = sorted(set(views) | set(downloads))
     if len(months) < 2:
         return ""
-    peak = max([*downloads.values(), 1])
+    peak = max([*views.values(), *downloads.values(), 1])
     label_h = 14
     plot_h = height - label_h
     group_w = width / len(months)
-    bar_w = max(3.0, min(14.0, group_w - 3.0))
+    bar_w = max(2.0, min(9.0, group_w / 2 - 1.5))
     bars = []
     for i, month in enumerate(months):
-        value = downloads.get(month, 0)
-        h = plot_h * value / peak
-        x0 = i * group_w + (group_w - bar_w) / 2
-        bars.append(
-            '<rect class="bar-downloads" x="%.1f" y="%.1f" width="%.1f" height="%.1f">'
-            '<title>%s: %d downloads</title></rect>'
-            % (x0, plot_h - h, bar_w, max(h, 0.5), month, value))
+        x0 = i * group_w + (group_w - 2 * bar_w - 1) / 2
+        for offset, series, css, kind in ((0, views, "bar-views", "OJS views"),
+                                          (bar_w + 1, downloads, "bar-downloads",
+                                           "downloads")):
+            value = series.get(month, 0)
+            h = plot_h * value / peak
+            bars.append(
+                '<rect class="%s" x="%.1f" y="%.1f" width="%.1f" height="%.1f">'
+                '<title>%s: %d %s</title></rect>'
+                % (css, x0 + offset, plot_h - h, bar_w, max(h, 0.5), month,
+                   value, kind))
     labels = (
         '<text class="chart-label" x="0" y="%d">%s</text>'
         '<text class="chart-label" x="%d" y="%d" text-anchor="end">%s</text>'
         % (height - 2, months[0], width, height - 2, months[-1]))
     return ('<svg viewBox="0 0 %d %d" width="100%%" role="img" '
-            'aria-label="Monthly PDF downloads">%s%s</svg>'
+            'aria-label="Monthly OJS views and PDF downloads">%s%s</svg>'
             % (width, height, "".join(bars), labels))
+
+
+def simple_bar_chart(values, css_class, aria_label, width=280, height=90):
+    """Minimalist single-series monthly bar chart: bars only, no Y-axis
+    numbers or gridlines - just the first and last month as x-axis labels.
+    """
+    months = sorted(values)
+    if len(months) < 2:
+        return ""
+    peak = max([*values.values(), 1])
+    label_h = 14
+    plot_h = height - label_h
+    group_w = width / len(months)
+    bar_w = max(3.0, min(16.0, group_w - 3.0))
+    bars = []
+    for i, month in enumerate(months):
+        value = values.get(month, 0)
+        h = plot_h * value / peak
+        x0 = i * group_w + (group_w - bar_w) / 2
+        bars.append(
+            '<rect class="%s" x="%.1f" y="%.1f" width="%.1f" height="%.1f">'
+            '<title>%s: %d</title></rect>'
+            % (css_class, x0, plot_h - h, bar_w, max(h, 0.5), month, value))
+    labels = (
+        '<text class="chart-label" x="0" y="%d">%s</text>'
+        '<text class="chart-label" x="%d" y="%d" text-anchor="end">%s</text>'
+        % (height - 2, months[0], width, height - 2, months[-1]))
+    return ('<svg viewBox="0 0 %d %d" width="100%%" role="img" '
+            'aria-label="%s">%s%s</svg>'
+            % (width, height, aria_label, "".join(bars), labels))
+
+
+def status_stacked_bar(counts, width=280, height=26):
+    """A single horizontal bar split into published/under-review/declined
+    segments, proportional to their share of all submissions."""
+    order = [("published", "status-published", "Published"),
+             ("underReview", "status-underreview", "Under review"),
+             ("declined", "status-declined", "Declined")]
+    total = sum(counts.get(k, 0) for k, _, _ in order) or 1
+    x = 0.0
+    segs = []
+    for key, css, label in order:
+        value = counts.get(key, 0)
+        w = width * value / total
+        if value:
+            segs.append(
+                '<rect class="%s" x="%.1f" y="0" width="%.1f" height="%d">'
+                '<title>%s: %d (%.0f%%)</title></rect>'
+                % (css, x, w, height, label, value, 100 * value / total))
+        x += w
+    return ('<svg viewBox="0 0 %d %d" width="100%%" height="%d" role="img" '
+            'aria-label="Submission status breakdown">%s</svg>'
+            % (width, height, height, "".join(segs)))
 
 
 TEAM_IMG_EXTS = (".jpg", ".jpeg", ".png", ".webp")

@@ -2,11 +2,16 @@
 """Fetch all public content of Replication Research (R2) from OJS.
 
 Sources:
-  * HTML scraping (anonymous)  -> issues, articles, static pages, announcements
-  * OJS REST API (OJS_API_KEY) -> usage statistics (abstract views, PDF downloads)
-  * PDF galleys                -> mirrored into assets/pdf/ so the GitHub Pages
-                                  site can render them same-origin with pdf.js
-                                  (the OJS server sends no CORS headers)
+  * HTML scraping (anonymous)   -> issues, articles, static pages, announcements
+  * OJS REST API (OJS_API_KEY)  -> OJS abstract views, PDF downloads, and the
+                                   submission funnel (published/under review/
+                                   declined) for the Submissions page charts
+  * GoatCounter API (optional,
+    GOATCOUNTER_API_TOKEN)      -> mirror-page view counts (see base.html for
+                                   the tracking snippet)
+  * PDF galleys                 -> mirrored into assets/pdf/ so the GitHub
+                                   Pages site can render them same-origin with
+                                   pdf.js (the OJS server sends no CORS headers)
 
 Writes data/*.json. All stored HTML fragments use the placeholder __BASE__ for
 the site root; build.py replaces it with the configured base URL.
@@ -673,38 +678,165 @@ def monthly_timeline(sub_id, metric, date_end):
 
 
 def fetch_stats(articles):
-    """PDF-download counts per article, from the authenticated OJS API.
-
-    Abstract-page views are intentionally not fetched: OJS only counts a view
-    when someone loads the abstract page on ejournals.uni-muenster.de itself,
-    which a mirror visitor never does, so the number would be permanently
-    stuck and misleading here. Downloads remain accurate because the
-    mirror's Download PDF button links straight to the canonical OJS
-    download URL, which OJS does count.
+    """Per-article usage stats: OJS abstract-page views, PDF downloads (both
+    via the authenticated OJS API), and mirror-page views (via GoatCounter,
+    see fetch_goatcounter_views). Kept as three distinct numbers rather than
+    merged, since they measure different things: "views on OJS" only counts
+    someone loading the abstract page on ejournals.uni-muenster.de itself
+    (a mirror visitor never triggers that), while "views on this mirror"
+    comes from GoatCounter tracking this site. Downloads are accurate on
+    either count, since the mirror's Download PDF button links straight to
+    the canonical OJS download URL, which OJS counts either way.
     """
-    if not API_KEY:
-        print("OJS_API_KEY not set - skipping usage statistics.")
-        return {}
-    import datetime
-    date_end = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
-    print("Fetching usage statistics via OJS API ...")
-    if api_get("/stats/publications", {"count": 1}) is None:
-        print("Stats preflight failed - skipping usage statistics.",
-              file=sys.stderr)
-        return {}
     stats = {}
+    if not API_KEY:
+        print("OJS_API_KEY not set - skipping OJS usage statistics.")
+    else:
+        import datetime
+        date_end = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+        print("Fetching usage statistics via OJS API ...")
+        if api_get("/stats/publications", {"count": 1}) is None:
+            print("Stats preflight failed - skipping OJS usage statistics.",
+                  file=sys.stderr)
+        else:
+            for art in articles:
+                sid = art["submissionId"]
+                if not sid:
+                    continue
+                views = monthly_timeline(sid, "abstract", date_end)
+                downloads = monthly_timeline(sid, "galley", date_end)
+                stats[sid] = {
+                    "ojsViews": sum(views.values()),
+                    "monthlyOjsViews": views,
+                    "pdfDownloads": sum(downloads.values()),
+                    "monthlyDownloads": downloads,
+                    "asOf": date_end,
+                }
+                print("  %s: %d OJS views, %d downloads"
+                      % (sid, stats[sid]["ojsViews"], stats[sid]["pdfDownloads"]))
+
+    goatcounter_views = fetch_goatcounter_views(articles)
     for art in articles:
         sid = art["submissionId"]
-        if not sid:
+        views = goatcounter_views.get(art["urlPath"])
+        if views is None:
             continue
-        downloads = monthly_timeline(sid, "galley", date_end)
-        stats[sid] = {
-            "pdfDownloads": sum(downloads.values()),
-            "monthlyDownloads": downloads,
-            "asOf": date_end,
-        }
-        print("  %s: %d downloads" % (sid, stats[sid]["pdfDownloads"]))
+        stats.setdefault(sid, {})["mirrorViews"] = views
+
     return stats
+
+
+# ---------------------------------------------------------------------------
+# Mirror page views via GoatCounter (https://www.goatcounter.com), a free,
+# cookie-less, privacy-friendly analytics service. The tracking snippet is
+# in templates/base.html; this just reads the counts back out at build time.
+# ---------------------------------------------------------------------------
+
+GOATCOUNTER_SITE = os.environ.get("GOATCOUNTER_SITE", "replicationresearch").strip()
+GOATCOUNTER_TOKEN = os.environ.get("GOATCOUNTER_API_TOKEN", "").strip()
+
+
+def _site_base_path():
+    """The path GitHub Pages serves this site under, e.g. '/r2/' - needed
+    because GoatCounter records the full pathname visitors see, including
+    that prefix. Mirrors build.py's BASE_URL normalisation.
+    """
+    base = os.environ.get("BASE_URL", "/r2/").strip() or "/r2/"
+    if not base.startswith("/"):
+        base = "/" + base
+    if not base.endswith("/"):
+        base += "/"
+    return base
+
+
+def fetch_goatcounter_views(articles):
+    """{urlPath: view count} for every article's mirror page, or {} if the
+    GOATCOUNTER_API_TOKEN secret isn't configured yet (skip, don't fail).
+    """
+    if not GOATCOUNTER_TOKEN:
+        print("GOATCOUNTER_API_TOKEN not set - skipping mirror-view stats.")
+        return {}
+    base_path = _site_base_path()
+    paths = {art["urlPath"]: base_path + "articles/%s/" % art["urlPath"]
+             for art in articles}
+    if not paths:
+        return {}
+    print("Fetching mirror page views from GoatCounter ...")
+    url = "https://%s.goatcounter.com/api/v0/stats/hits" % GOATCOUNTER_SITE
+    headers = {"Authorization": "Bearer " + GOATCOUNTER_TOKEN,
+               "Content-Type": "application/json"}
+    try:
+        r = session.get(url, headers=headers, timeout=30, params={
+            "include_paths": list(paths.values()),
+            "path_by_name": "true",
+            "start": DATE_START + "T00:00:00Z",
+            "limit": 100,
+        })
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:  # noqa: BLE001 - analytics must never block a build
+        print("  GoatCounter fetch failed, skipping: %s" % e, file=sys.stderr)
+        return {}
+    by_full_path = {hit.get("path"): hit.get("count", 0)
+                    for hit in data.get("hits", [])}
+    result = {}
+    for url_path, full_path in paths.items():
+        if full_path in by_full_path:
+            result[url_path] = by_full_path[full_path]
+    print("  got mirror views for %d/%d articles" % (len(result), len(paths)))
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Submission funnel (for the Submissions page charts): how many manuscripts
+# came in per month, and how they broke down (published / under review /
+# declined). Uses the same OJS_API_KEY as the stats above.
+# ---------------------------------------------------------------------------
+
+# pkp-lib submission status constants (stable since OJS 3.0).
+STATUS_PUBLISHED = 3
+STATUS_DECLINED = 4
+
+
+def fetch_submission_stats():
+    if not API_KEY:
+        print("OJS_API_KEY not set - skipping submission-funnel stats.")
+        return None
+    print("Fetching submission list via OJS API ...")
+    items = []
+    offset = 0
+    while True:
+        data = api_get("/submissions", {"count": 100, "offset": offset})
+        if not data:
+            break
+        batch = data.get("items") or []
+        items.extend(batch)
+        total = data.get("itemsMax", 0)
+        offset += len(batch)
+        if not batch or offset >= total:
+            break
+    if not items:
+        print("  no submissions returned - skipping.", file=sys.stderr)
+        return None
+
+    monthly = {}
+    counts = {"published": 0, "underReview": 0, "declined": 0}
+    for item in items:
+        date = str(item.get("dateSubmitted") or "")[:7]
+        m = re.match(r"\d{4}-\d{2}$", date)
+        if m:
+            monthly[date] = monthly.get(date, 0) + 1
+        status = item.get("status")
+        if status == STATUS_PUBLISHED:
+            counts["published"] += 1
+        elif status == STATUS_DECLINED:
+            counts["declined"] += 1
+        else:
+            counts["underReview"] += 1
+    print("  %d submissions: %d published, %d under review, %d declined"
+          % (len(items), counts["published"], counts["underReview"],
+             counts["declined"]))
+    return {"monthly": monthly, "statusCounts": counts, "total": len(items)}
 
 
 # ---------------------------------------------------------------------------
@@ -774,6 +906,7 @@ def main():
 
     mirror_pdfs(articles)
     stats = fetch_stats(articles)
+    submission_stats = fetch_submission_stats()
 
     # Sanity checks: never publish an obviously broken harvest.
     problems = []
@@ -805,6 +938,10 @@ def main():
         write_json("stats.json", stats)
     else:
         print("Keeping previous stats.json (stats fetch unavailable).")
+    if submission_stats is not None:
+        write_json("submissions.json", submission_stats)
+    else:
+        print("Keeping previous submissions.json (fetch unavailable).")
 
     print("Done: %d issues, %d articles, %d pages, %d announcements, %d PDFs."
           % (len(issues), len(articles), len(pages), len(announcements),

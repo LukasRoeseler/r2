@@ -13,6 +13,7 @@ permissions:
   contents: write   # commit refreshed data/ and assets/
   pages: write      # deploy to GitHub Pages
   id-token: write   # required by actions/deploy-pages
+  issues: write     # open/close the "Mirror build failed" tracking issue
 
 concurrency:
   group: mirror-build
@@ -39,6 +40,8 @@ jobs:
       - name: Fetch content from OJS
         env:
           OJS_API_KEY: ${{ secrets.OJS_API_KEY }}
+          GOATCOUNTER_API_TOKEN: ${{ secrets.GOATCOUNTER_API_TOKEN }}
+          BASE_URL: /${{ github.event.repository.name }}/
         run: python scripts/fetch.py
 
       - name: Commit refreshed content if changed
@@ -72,3 +75,55 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # Fallback notification: GitHub already emails repo owners on a failed
+      # run by default, but that setting can be off or filtered. This opens
+      # (or comments on) a durable, visible issue instead, and auto-closes it
+      # once a run succeeds again. Either way, a failure here never touches
+      # the published site: fetch.py only writes data/ after its own sanity
+      # checks pass, and a failed step stops the job before build/deploy run,
+      # so the last successful build stays live untouched.
+      - name: Open/update failure issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "Mirror build failed";
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = `The scheduled mirror build failed on ${new Date().toISOString().slice(0, 10)}.\n\n` +
+              `Run log: ${runUrl}\n\n` +
+              "The published site was **not** changed by this run - it still shows the last successful build.";
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo, state: "open", per_page: 50,
+            });
+            const existing = issues.find(i => i.title === title && !i.pull_request);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo, title, body,
+              });
+            }
+
+      - name: Close failure issue if this run succeeded
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "Mirror build failed";
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo, state: "open", per_page: 50,
+            });
+            const existing = issues.find(i => i.title === title && !i.pull_request);
+            if (existing) {
+              const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number,
+                body: `The mirror build is passing again: ${runUrl}`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number, state: "closed",
+              });
+            }

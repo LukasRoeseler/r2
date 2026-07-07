@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ page.title }} · {{ journal.name }}{% endblock %}
+{% block content %}
+<div class="wrap page-body page-narrow">
+  <nav class="breadcrumbs"><a href="{{ base }}">Home</a> / <span>{{ page.title }}</span></nav>
+  <h1 class="page-heading">{{ page.title }}</h1>
+
+  <section class="submission-resources">
+    <h2 class="toc-section-title" style="margin-top:0">To Make Your Submission as Easy as Possible</h2>
+    <div class="resource-grid">
+      {% for r in resources %}
+      <a class="resource-card" href="{{ r.url }}">
+        <h3>{{ r.title }}</h3>
+        <p>{{ r.blurb }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div class="prose">{{ page.html | safe }}</div>
+
+  {% if submissions %}
+  <section class="submission-charts">
+    <div class="submission-chart-box">
+      <h3>New submissions per month</h3>
+      {{ submissions.monthlyChart | safe }}
+    </div>
+    <div class="submission-chart-box">
+      <h3>Submission status ({{ submissions.total }} total)</h3>
+      {{ submissions.statusBar | safe }}
+      <ul class="status-legend">
+        <li><span class="legend-dot status-published"></span> Published — {{ submissions.statusCounts.published }}</li>
+        <li><span class="legend-dot status-underreview"></span> Under review — {{ submissions.statusCounts.underReview }}</li>
+        <li><span class="legend-dot status-declined"></span> Declined — {{ submissions.statusCounts.declined }}</li>
+      </ul>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

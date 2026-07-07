@@ -12,12 +12,14 @@ A beautiful, static, self-updating mirror of the journal
   own download counter still increments); each article page also embeds a
   [pdf.js](https://mozilla.github.io/pdf.js/) viewer (zoom, search, paging)
   that renders a mirrored, same-origin copy of the PDF for in-page reading.
-- **Usage statistics** (PDF downloads only) come from the authenticated OJS
-  REST API — the same `OJS_API_KEY` pattern as the
-  [r2d2 dashboard](https://github.com/LukasRoeseler/r2d2). Abstract-page
-  views are deliberately not shown: OJS only counts a view when someone
-  loads the abstract page on ejournals.uni-muenster.de itself, so a mirror
-  visitor never registers one and the number would be permanently stuck.
+- **Usage statistics** combine two sources, kept separate because they
+  measure different things: OJS abstract-page views and PDF downloads come
+  from the authenticated OJS REST API (`OJS_API_KEY`, same pattern as the
+  [r2d2 dashboard](https://github.com/LukasRoeseler/r2d2)) and only count
+  activity on ejournals.uni-muenster.de itself; views of the *mirror's own*
+  pages come from [GoatCounter](https://www.goatcounter.com) (free, no
+  cookies), tracked via the snippet in `templates/base.html` and read back
+  through its API (`GOATCOUNTER_API_TOKEN`).
 
 ## How it works
 
@@ -41,10 +43,17 @@ to a custom domain later only means changing `BASE_URL`.
 2. Add the OJS API key: **Settings → Secrets and variables → Actions →
    New repository secret**, name `OJS_API_KEY` (same token as in r2d2;
    from OJS: User Profile → API Key). Without it the site still builds,
-   just without the usage-statistics boxes.
-3. Enable Pages: **Settings → Pages → Build and deployment → Source:
+   just without OJS views/downloads or the submission-funnel charts.
+3. Optional, for mirror-page view counts: create a free site at
+   [goatcounter.com](https://www.goatcounter.com) (site code
+   `replicationresearch` is already wired into `templates/base.html` — change
+   it there if you use a different code), then **Settings → API** in the
+   GoatCounter dashboard to create a token with read access to stats, and add
+   it as the `GOATCOUNTER_API_TOKEN` repository secret. Without it, mirror
+   views are simply omitted (OJS views and downloads still show).
+4. Enable Pages: **Settings → Pages → Build and deployment → Source:
    GitHub Actions**.
-4. Run the workflow once: **Actions → "Fetch content and deploy mirror" →
+5. Run the workflow once: **Actions → "Fetch content and deploy mirror" →
    Run workflow**. After that it runs daily at 04:23 UTC.
 
 ## Local development
@@ -84,3 +93,11 @@ the domain's DNS at GitHub Pages.
   articles, missing PDFs) — see the sanity checks at the end of
   `fetch.py`'s `main()`. If OJS is upgraded and something still looks off,
   check the failed run's log for which selector stopped matching.
+- **If a scheduled run fails**, the job stops before the commit/build/deploy
+  steps, so the currently published site is left exactly as it was — nothing
+  gets overwritten with broken or partial data. You'll also get a heads-up
+  two ways: GitHub's own "workflow run failed" email (on by default for repo
+  owners; check **your GitHub notification settings → Actions** if you don't
+  want to rely on it), and a repository issue titled "Mirror build failed"
+  that the workflow opens automatically (and closes again once a later run
+  succeeds), in case the email gets missed or filtered.

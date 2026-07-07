@@ -1,9 +1,9 @@
 /* Replication Research (R2) mirror — clean modern academic theme */
 
 :root {
-  --accent: #1e6ea8;
-  --accent-dark: #14507c;
-  --accent-soft: #e8f1f8;
+  --accent: #009dd0;      /* sampled from the R2 logo's blue ink */
+  --accent-dark: #00769c; /* hover/active state: same hue, darker */
+  --accent-soft: #e6f5fa; /* same hue, light tint for backgrounds */
   --ink: #1c2733;
   --ink-soft: #4a5866;
   --muted: #75828f;
@@ -59,6 +59,8 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 }
 .pill-pdf { background: var(--accent); color: #fff; }
 .pill-pdf:hover { background: var(--accent-dark); color: #fff; text-decoration: none; }
+.pill-download { background: transparent; color: var(--accent-dark); border: 1.5px solid var(--accent); }
+.pill-download:hover { background: var(--accent-soft); text-decoration: none; }
 .pill-stat { background: var(--bg-alt); color: var(--ink-soft); border: 1px solid var(--rule); }
 .pill-keyword { background: var(--accent-soft); color: var(--accent-dark); }
 
@@ -198,6 +200,23 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .news-card h3 { font-size: 1.1rem; margin: .2rem 0 .5rem; }
 .news-card p { font-size: .92rem; color: var(--ink-soft); margin: 0; }
 
+/* Further-projects tiles */
+.project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.3rem; }
+.project-tile {
+  display: flex; flex-direction: column; background: #fff; border: 1px solid var(--rule);
+  border-radius: var(--radius); overflow: hidden; color: var(--ink); text-decoration: none !important;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.project-tile:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.project-tile-img {
+  display: flex; align-items: center; justify-content: center; height: 130px;
+  background: var(--bg-alt); padding: 1rem;
+}
+.project-tile-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.project-tile-body { padding: 1rem 1.2rem 1.3rem; }
+.project-tile-title { display: block; font-family: var(--serif); font-size: 1.05rem; font-weight: 700; margin-bottom: .35rem; }
+.project-tile-blurb { display: block; font-size: .87rem; color: var(--ink-soft); }
+
 /* Generic page */
 .page-body { padding: 2.6rem 0 4rem; }
 .page-narrow { max-width: 780px; }
@@ -271,9 +290,37 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 /* Usage chart */
 .stats-chart { margin-top: .8rem; }
 .stats-chart svg { display: block; }
+.bar-views { fill: #7fb3d8; }
 .bar-downloads { fill: var(--accent-dark); }
 .chart-label { font-size: 9px; fill: var(--muted); font-family: var(--sans); }
 .chart-legend { font-size: .78rem; color: var(--muted); margin: .3rem 0 0; }
+.legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin: 0 .25rem 0 .6rem; vertical-align: -1px; }
+.legend-dot:first-child { margin-left: 0; }
+.legend-views { background: #7fb3d8; }
+.legend-downloads { background: var(--accent-dark); }
+
+/* Submissions page: resources + funnel charts */
+.resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.1rem; margin: 1.4rem 0 2.4rem; }
+.resource-card {
+  display: block; background: var(--bg-alt); border: 1px solid var(--rule);
+  border-radius: var(--radius); padding: 1.1rem 1.3rem; text-decoration: none !important;
+  transition: box-shadow .15s ease;
+}
+.resource-card:hover { box-shadow: var(--shadow); }
+.resource-card h3 { font-size: 1.02rem; margin: 0 0 .35rem; color: var(--accent-dark); }
+.resource-card p { font-size: .88rem; color: var(--ink-soft); margin: 0; }
+.submission-charts {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem; margin-top: 1.2rem; padding-top: 2rem; border-top: 1px solid var(--rule);
+}
+.submission-chart-box h3 { font-size: 1rem; margin: 0 0 .8rem; }
+.bar-submissions { fill: var(--accent); }
+.status-published { fill: #2a8a5f; }
+.status-underreview { fill: #d9a441; }
+.status-declined { fill: #c1594f; }
+.status-legend { list-style: none; margin: .8rem 0 0; padding: 0; font-size: .85rem; color: var(--ink-soft); }
+.status-legend li { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem; }
+.status-legend .legend-dot { margin: 0; }
 
 /* Editorial team */
 .team-section { margin-bottom: 2.6rem; }
@@ -334,7 +381,7 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .home-about h2 { font-size: 1.35rem; }
 
 /* Footer */
-.site-footer { background: #21303f; color: #c6d2dd; margin-top: 3rem; padding: 3rem 0 2rem; }
+.site-footer { background: #262d34; color: #c6d2dd; margin-top: 3rem; padding: 3rem 0 2rem; }
 .site-footer a { color: #9ec8e8; }
 .footer-partners { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.6rem; margin-bottom: 2.2rem; }
 .partner-block h2 { font-family: var(--sans); font-size: .78rem; text-transform: uppercase; letter-spacing: .12em; color: #8ba2b5; margin: 0 0 .7rem; }

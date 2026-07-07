@@ -8,9 +8,6 @@
         <a class="split-left" href="{{ journal.submitUrl }}">Submit manuscript</a>
         <a class="split-right" href="https://docs.google.com/forms/d/e/1FAIpQLScktynmACLlyYc7Ezp1dmcEWoyvr02Xy2D59F8o3JZyhCCaGw/viewform">Pre-submission inquiry</a>
       </span>
-      {% if current_issue %}
-      <a class="btn btn-ghost btn-lg" href="{{ base }}issues/{{ current_issue.id }}/">Current issue</a>
-      {% endif %}
     </div>
   </div>
 </section>
@@ -73,6 +70,27 @@
         <h3><a href="{{ base }}announcements/{{ ann.id }}/">{{ ann.title }}</a></h3>
         <p>{{ ann.html | excerpt(180) }}</p>
       </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if further_projects %}
+<section class="section section-alt">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Further projects to support replications</h2>
+    </div>
+    <div class="project-grid">
+      {% for p in further_projects %}
+      <a class="project-tile" href="{{ p.url }}">
+        <span class="project-tile-img"><img src="{{ base }}static/img/{{ p.img }}" alt=""></span>
+        <span class="project-tile-body">
+          <span class="project-tile-title">{{ p.title }}</span>
+          <span class="project-tile-blurb">{{ p.blurb }}</span>
+        </span>
+      </a>
       {% endfor %}
     </div>
   </div>
