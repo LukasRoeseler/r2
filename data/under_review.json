@@ -3,16 +3,16 @@
   "authors": [
    {
     "affiliation": "",
-    "name": "Indridason",
-    "orcid": ""
+    "name": "Indridi Indridason",
+    "orcid": "https://orcid.org/0000-0003-4117-160X"
    }
   ],
   "handlingEditor": "Lukas Wallrich, SRC: Flavio Azevedo",
   "id": "11",
-  "preprintUrl": "",
+  "preprintUrl": "https://doi.org/10.31235/osf.io/zh56a_v1",
   "status": "Under review",
   "submissionDate": "2026-06-04",
-  "title": "Indidason Re-analyzing COVDI-19"
+  "title": "Re-analyzing ``I Hope to Hell Nothing Goes Back to The Way It Was Before'': COVID-19, Marginalization, and Native Nations"
  },
  {
   "authors": [
@@ -43,16 +43,36 @@
   "authors": [
    {
     "affiliation": "",
-    "name": "Lakens",
-    "orcid": ""
+    "name": "Daniel Lakens",
+    "orcid": "https://orcid.org/0000-0002-0247-239X"
+   },
+   {
+    "affiliation": "",
+    "name": "Nina Maria Leach",
+    "orcid": "https://orcid.org/0000-0002-6398-7522"
+   },
+   {
+    "affiliation": "",
+    "name": "Antal Haans",
+    "orcid": "https://orcid.org/0000-0002-9378-4152"
+   },
+   {
+    "affiliation": "",
+    "name": "Duygu Uygun Tunç",
+    "orcid": "https://orcid.org/0000-0003-0148-0416"
+   },
+   {
+    "affiliation": "",
+    "name": "Mehmet Necip Tunç",
+    "orcid": "https://orcid.org/0000-0002-1350-174X"
    }
   ],
   "handlingEditor": "Ingmar Visser",
   "id": "8",
-  "preprintUrl": "",
+  "preprintUrl": "https://doi.org/10.31234/osf.io/7ydgu_v1",
   "status": "Under review",
   "submissionDate": "2026-04-30",
-  "title": "Lakens How to Analyze"
+  "title": "How to analyze a replication study"
  },
  {
   "authors": [
@@ -88,16 +108,16 @@
   "authors": [
    {
     "affiliation": "",
-    "name": "Traini",
-    "orcid": ""
+    "name": "Claudia Traini",
+    "orcid": "https://orcid.org/0000-0002-4533-3007"
    }
   ],
   "handlingEditor": "Lukas Wallrich",
   "id": "3",
-  "preprintUrl": "",
+  "preprintUrl": "https://doi.org/10.31235/osf.io/2nwft",
   "status": "Pre-Review revision",
   "submissionDate": "2026-02-25",
-  "title": "Labour Market Allocation and Equality of Educational Opportunity"
+  "title": "Educational Systems and the Trade-Off between Labour Market Allocation and Equality of Educational Opportunity. A replication of Bol and van de Werfhorst (2013)"
  },
  {
   "authors": [
