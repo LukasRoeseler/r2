@@ -856,6 +856,23 @@ SHEET_CSV_URL = ("https://docs.google.com/spreadsheets/d/%s/gviz/tq"
 CROSSREF_MAILTO = "contact@replicationresearch.org"
 
 
+def _unescape_fully(s):
+    """Repeatedly HTML-unescape until stable.
+
+    Some publishers double-encode metadata before it reaches Crossref, so a
+    title can arrive as literal text containing "&amp;amp;" (i.e. already
+    escaped once). A single html.unescape() only resolves one layer,
+    leaving "&amp;" as visible text; looping to a fixed point resolves any
+    depth of accidental double-encoding.
+    """
+    import html
+    prev = None
+    while prev != s:
+        prev = s
+        s = html.unescape(s)
+    return s
+
+
 def _crossref_work(doi):
     """{title, authors} from Crossref for a DOI, or None on any failure."""
     try:
@@ -865,10 +882,11 @@ def _crossref_work(doi):
     except Exception as e:  # noqa: BLE001 - one bad DOI must not block the rest
         print("  Crossref lookup failed for %s: %s" % (doi, e), file=sys.stderr)
         return None
-    title = (msg.get("title") or [""])[0].strip()
+    title = _unescape_fully((msg.get("title") or [""])[0].strip())
     authors = []
     for a in msg.get("author") or []:
         name = " ".join(p for p in (a.get("given"), a.get("family")) if p)
+        name = _unescape_fully(name)
         if name:
             authors.append({"name": name, "affiliation": "",
                              "orcid": a.get("ORCID") or ""})

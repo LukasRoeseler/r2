@@ -186,11 +186,26 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .more { font-weight: 600; font-size: .92rem; white-space: nowrap; }
 
 /* Issue feature (home) */
-.issue-feature { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; align-items: start; }
+.issue-feature {
+  display: grid; grid-template-columns: 220px 1fr; gap: 2rem; align-items: start;
+  margin-bottom: 2.4rem; padding-bottom: 2.4rem; border-bottom: 1px solid var(--rule);
+}
+.issue-feature:last-child:not(.issue-feature-highlight) {
+  margin-bottom: 0; padding-bottom: 0; border-bottom: none;
+}
 .issue-cover img, .issue-cover-lg {
   border-radius: var(--radius); box-shadow: var(--shadow); display: block;
 }
 .issue-feature-body h3 { font-size: 1.35rem; margin: 0 0 .3rem; }
+
+/* Subtle callout treatment for the "Under Review" card - it's live,
+   editable content rather than a fixed published issue, so it earns a
+   little visual distinction without being loud about it. */
+.issue-feature-highlight {
+  background: var(--accent-soft); border-radius: var(--radius);
+  padding: 1.8rem 2rem; margin-bottom: 0; border-bottom: none;
+}
+.issue-feature-highlight .issue-cover img { box-shadow: none; border: 1px solid var(--rule); }
 
 /* Article cards */
 .article-list { list-style: none; margin: 0; padding: 0; }
