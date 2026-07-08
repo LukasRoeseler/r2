@@ -93,6 +93,44 @@ SUBMISSION_RESOURCES = [
     },
 ]
 
+REVIEWER_RESOURCES = [
+    {
+        "title": "Review Reports",
+        "blurb": "Published peer review reports for completed submissions "
+                 "(accepted or declined).",
+        "url": "https://zenodo.org/communities/r2/records?q=review&l=list&p=1&s=10&sort=bestmatch",
+    },
+    {
+        "title": "PubPeer Comments",
+        "blurb": "Follow ongoing reviews as they happen, posted publicly "
+                 "on PubPeer.",
+        "url": 'https://pubpeer.com/search?q="Replication+Research+Peer+Review"',
+    },
+    {
+        "title": "Reproducibility Certificates",
+        "blurb": "Certificates confirming a submission's computational "
+                 "reproducibility.",
+        "url": 'https://zenodo.org/communities/r2/records?q="reproducibility%20certificate"&l=list&p=1&s=10&sort=bestmatch',
+    },
+]
+
+
+def sort_issues_newest_first(issues, articles_by_path):
+    """Newest-first order for issues and, within each issue's sections, its
+    articles - rather than trusting whatever order OJS's archive/TOC pages
+    happen to render in, which isn't guaranteed to stay newest-first.
+    """
+    def article_date(url_path):
+        return (articles_by_path.get(url_path) or {}).get("datePublished") or ""
+
+    issues = sorted(issues, key=lambda i: i.get("datePublished") or "",
+                     reverse=True)
+    for issue in issues:
+        for section in issue["sections"]:
+            section["articles"] = sorted(section["articles"],
+                                          key=article_date, reverse=True)
+    return issues
+
 
 def normalize_article_stats(stats):
     """Fill in missing keys with None so templates never render a blank
@@ -137,6 +175,7 @@ def main():
         team = team_with_photos(load("team.json"))
 
     articles_by_path = {a["urlPath"]: a for a in articles}
+    issues = sort_issues_newest_first(issues, articles_by_path)
     for a in articles:
         a["stats"] = normalize_article_stats(stats.get(a["submissionId"]))
         pub_month = a["datePublished"][:7] if a.get("datePublished") else None
@@ -222,6 +261,10 @@ def main():
             render("submissions.html", out, page=page,
                    resources=SUBMISSION_RESOURCES,
                    submissions=submissions_charts)
+        elif page["slug"] == "reviewer-guidelines":
+            render("page.html", out, page=page,
+                   resources=REVIEWER_RESOURCES,
+                   resources_heading="Quick Links")
         else:
             render("page.html", out, page=page)
 
