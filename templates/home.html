@@ -73,7 +73,7 @@
           <li class="article-card">
             <p class="article-section">{{ r.status }}</p>
             <h4>{{ r.title }}</h4>
-            <p class="article-authors">{% for au in r.authors %}{{ au.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% if r.handlingEditor %}{% if r.authors %} · {% endif %}Handling editor: {{ r.handlingEditor }}{% endif %}</p>
+            <p class="article-authors">{% for au in r.authors %}{{ au.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% if r.handlingEditor %}{% if r.authors %}<br>{% endif %}Handling editor: {{ r.handlingEditor }}{% endif %}</p>
             {% if r.preprintUrl %}
             <p class="article-links"><a class="pill pill-pdf" href="{{ r.preprintUrl }}">Preprint</a></p>
             {% endif %}
