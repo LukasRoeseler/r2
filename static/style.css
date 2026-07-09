@@ -251,7 +251,11 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .project-tile-blurb { display: block; font-size: .87rem; color: var(--ink-soft); }
 
 /* Generic page */
-.page-body { padding: 2.6rem 0 4rem; }
+/* padding-top/-bottom only (not the shorthand): this class always sits on
+   the same element as .wrap, and a padding shorthand here would overwrite
+   .wrap's horizontal padding with 0, pushing text flush to the viewport
+   edge on narrow screens. */
+.page-body { padding-top: 2.6rem; padding-bottom: 4rem; }
 .page-narrow { max-width: 780px; }
 .page-heading { font-size: clamp(1.8rem, 4vw, 2.4rem); margin: .4rem 0 1.2rem; }
 .breadcrumbs { font-size: .85rem; color: var(--muted); margin-bottom: .6rem; }
