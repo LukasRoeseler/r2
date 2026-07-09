@@ -78,16 +78,26 @@
   "authors": [
    {
     "affiliation": "",
-    "name": "Schimke",
+    "name": "Benjamin Schimke",
+    "orcid": "https://orcid.org/0000-0002-9399-3229"
+   },
+   {
+    "affiliation": "",
+    "name": "Silvia Annen",
+    "orcid": ""
+   },
+   {
+    "affiliation": "",
+    "name": "Melanie Hochmuth",
     "orcid": ""
    }
   ],
   "handlingEditor": "Susanne Adler",
   "id": "7",
-  "preprintUrl": "https://doi.org/10.31219/osf.io/zk2ar_v2",
+  "preprintUrl": "https://doi.org/10.31235/osf.io/zk2ar_v2",
   "status": "Under review",
   "submissionDate": "2026-04-22",
-  "title": "Schimke Factorial Surveys"
+  "title": "Too Soon to Dismiss? A Reanalysis of Forster and Neugebauer (2024) Highlighting the Role of Effect Heterogeneity in Evaluating Factorial Surveys"
  },
  {
   "authors": [
