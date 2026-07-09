@@ -897,15 +897,40 @@ def _unescape_fully(s):
     return s
 
 
-def _crossref_work(doi):
-    """{title, authors} from Crossref for a DOI, or None on any failure."""
-    try:
-        r = get("https://api.crossref.org/works/%s" % doi,
-                params={"mailto": CROSSREF_MAILTO})
-        msg = r.json().get("message", {})
-    except Exception as e:  # noqa: BLE001 - one bad DOI must not block the rest
-        print("  Crossref lookup failed for %s: %s" % (doi, e), file=sys.stderr)
+def _doi_lookup_get(url, params=None):
+    """GET for an optional DOI-metadata lookup. A 404 here is a real,
+    final answer ("this registration agency doesn't have this DOI"), not
+    a transient failure - unlike fetch.py's other requests, it must not
+    be retried as if it were one. Only actual network/server errors get a
+    couple of quick retries.
+    """
+    last = None
+    for attempt in range(2):
+        _throttle()
+        try:
+            r = session.get(url, params=params, timeout=30)
+        except requests.RequestException as e:
+            last = str(e)
+            time.sleep(2)
+            continue
+        if r.status_code == 200:
+            return r
+        if r.status_code == 404:
+            return None
+        last = "HTTP %s" % r.status_code
+        time.sleep(2)
+    if last:
+        print("  DOI metadata lookup failed for %s: %s" % (url, last),
+              file=sys.stderr)
+    return None
+
+
+def _crossref_lookup(doi):
+    r = _doi_lookup_get("https://api.crossref.org/works/%s" % doi,
+                        {"mailto": CROSSREF_MAILTO})
+    if r is None:
         return None
+    msg = r.json().get("message", {})
     title = _unescape_fully((msg.get("title") or [""])[0].strip())
     authors = []
     for a in msg.get("author") or []:
@@ -917,6 +942,45 @@ def _crossref_work(doi):
     if not title and not authors:
         return None
     return {"title": title, "authors": authors}
+
+
+def _datacite_lookup(doi):
+    """Crossref doesn't carry arXiv (or some other preprint servers') DOIs
+    - those are registered with DataCite instead. Same {title, authors}
+    shape as _crossref_lookup so callers don't need to care which agency
+    actually had it.
+    """
+    r = _doi_lookup_get("https://api.datacite.org/dois/%s" % doi)
+    if r is None:
+        return None
+    attrs = (r.json().get("data") or {}).get("attributes", {})
+    titles = attrs.get("titles") or []
+    title = _unescape_fully((titles[0].get("title") if titles else "") or "")
+    authors = []
+    for c in attrs.get("creators") or []:
+        name = (" ".join(p for p in (c.get("givenName"), c.get("familyName"))
+                         if p) or c.get("name") or "")
+        name = _unescape_fully(name)
+        if not name:
+            continue
+        orcid = ""
+        for nid in c.get("nameIdentifiers") or []:
+            if (nid.get("nameIdentifierScheme") or "").upper() == "ORCID":
+                orcid = nid.get("nameIdentifier") or ""
+                break
+        authors.append({"name": name, "affiliation": "", "orcid": orcid})
+    if not title and not authors:
+        return None
+    return {"title": title, "authors": authors}
+
+
+def _doi_metadata(doi):
+    """{title, authors} for a DOI via Crossref, falling back to DataCite,
+    or None if neither registration agency has it (the sheet's own
+    GDrive-folder title / first-author column is the final fallback,
+    handled by the caller).
+    """
+    return _crossref_lookup(doi) or _datacite_lookup(doi)
 
 
 def _parse_sheet_date(raw):
@@ -966,13 +1030,17 @@ def fetch_under_review():
 
         doi_url = (row.get("Preprint") or "").strip()
         doi = re.sub(r"^https?://(dx\.)?doi\.org/", "", doi_url)
-        crossref = _crossref_work(doi) if doi else None
+        doi_meta = _doi_metadata(doi) if doi else None
+        if doi and doi_meta is None:
+            print("  no Crossref/DataCite record for preprint DOI %s "
+                  "(submission %s) - check it resolves at https://doi.org/%s"
+                  % (doi, sub_id, doi), file=sys.stderr)
 
         entries.append({
             "id": sub_id,
-            "title": (crossref or {}).get("title") or fallback_title
+            "title": (doi_meta or {}).get("title") or fallback_title
                      or "Untitled submission",
-            "authors": (crossref or {}).get("authors")
+            "authors": (doi_meta or {}).get("authors")
                        or ([{"name": first_author, "affiliation": "", "orcid": ""}]
                            if first_author else []),
             "preprintUrl": doi_url,
