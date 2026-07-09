@@ -1,22 +1,5 @@
 [
  {
-  "cover": "__BASE__assets/img/97528b82-cover_issue_679_en_US.png",
-  "datePublished": "2026-04-30",
-  "descriptionHtml": "",
-  "id": "vol2",
-  "ojsUrl": "https://ejournals.uni-muenster.de/replicationresearch/issue/view/vol2",
-  "sections": [
-   {
-    "articles": [
-     "9577"
-    ],
-    "title": "Editorial Communication"
-   }
-  ],
-  "series": "",
-  "title": "Vol. 2 (2026)"
- },
- {
   "cover": "__BASE__assets/img/22289721-cover_issue_634_en_US.png",
   "datePublished": "2025-10-20",
   "descriptionHtml": "",
@@ -32,5 +15,22 @@
   ],
   "series": "",
   "title": "Vol. 1 (2025)"
+ },
+ {
+  "cover": "__BASE__assets/img/97528b82-cover_issue_679_en_US.png",
+  "datePublished": "2026-04-30",
+  "descriptionHtml": "",
+  "id": "vol2",
+  "ojsUrl": "https://ejournals.uni-muenster.de/replicationresearch/issue/view/vol2",
+  "sections": [
+   {
+    "articles": [
+     "9577"
+    ],
+    "title": "Editorial Communication"
+   }
+  ],
+  "series": "",
+  "title": "Vol. 2 (2026)"
  }
 ]
