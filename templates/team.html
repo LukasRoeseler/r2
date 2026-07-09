@@ -3,6 +3,37 @@
 {% block content %}
 <div class="wrap page-body">
   <nav class="breadcrumbs"><a href="{{ base }}">Home</a> / <span>{{ page.title }}</span></nav>
+
+  <section class="team-intro">
+    <h1 class="page-heading">Who We Are</h1>
+    <div class="prose">
+      <p>We are a team of tenured and early-career researchers who came
+        together due to the shared mission of <em>making replications
+        count</em>. We believe in open scholarship and cumulative,
+        self-correcting research and support other researchers who do so.</p>
+    </div>
+
+    <h2 class="team-section-title">We Make Replications Count</h2>
+    <div class="prose">
+      <p>Replication Research is our most ambitious attempt to support
+        researchers who conduct reproductions and replications and there are
+        many others. Since 2022, we have been maintaining the world's
+        largest curated replication database
+        (<a href="https://forrt.org/flora-explorer/">forrt.org/flora-explorer/</a>),
+        we have conducted numerous workshops, Replication Games, and the
+        <a href="https://forrt.org/love-replications-week/">Love Replications Week</a>,
+        in spring 2026, we released an open-source, privacy-preserving
+        Zotero plugin
+        (<a href="https://forrt.org/flora-zotero/">forrt.org/flora-zotero/</a>)
+        that checks your library for replications, in summer 2026, we
+        started releasing over two thousand PubPeer comments that draw
+        attention to reproduction and replication attempts and their
+        outcomes, and at the
+        <a href="https://forrt.org/replication-hub/">FORRT Replication Hub</a>,
+        we are working on many more projects.</p>
+    </div>
+  </section>
+
   <h1 class="page-heading">{{ page.title }}</h1>
 
   {% for section in team.sections %}
@@ -33,5 +64,60 @@
     {% if section.noteHtml %}<div class="prose team-note">{{ section.noteHtml | safe }}</div>{% endif %}
   </section>
   {% endfor %}
+
+  <section class="team-media">
+    <h2 class="team-section-title">R2 Team Media Coverage</h2>
+    <ul class="media-list">
+      <li class="media-item">
+        <span class="media-date">06/2026</span>
+        <span class="media-body">
+          <a href="https://youtu.be/PSVNZ-OFj3U?si=i0COq0oXJM9MBZe4&amp;t=838">The foundation of R2</a>
+          <span class="media-outlet">Metascience Matters podcast</span>
+        </span>
+      </li>
+      <li class="media-item">
+        <span class="media-date">06/2026</span>
+        <span class="media-body">
+          <a href="https://openeconomics.zbw.eu/en/2026/06/r2-a-new-home-for-replication-research-plus-tips-for-getting-started/">R2: A New Home for Replication Research &ndash; Plus Tips for Getting Started</a>
+          <span class="media-outlet">Open Economics Guide Blog</span>
+        </span>
+      </li>
+      <li class="media-item">
+        <span class="media-date">02/2026</span>
+        <span class="media-body">
+          <a href="https://www.cos.io/blog/building-a-publishing-model-for-replication-qa-with-the-senior-editors-of-replication-research">Building a Publishing Model for Replication</a>
+          <span class="media-outlet">COS Blog</span>
+        </span>
+      </li>
+      <li class="media-item">
+        <span class="media-date">11/2025</span>
+        <span class="media-body">
+          <a href="https://www.laborjournal.de/editorials/3363.php">Repetition becomes socially acceptable</a>
+          <span class="media-outlet">Laborjournal</span>
+        </span>
+      </li>
+      <li class="media-item">
+        <span class="media-date">10/2025</span>
+        <span class="media-body">
+          <a href="https://www.uni-muenster.de/news/view.php?cmdid=15006&amp;lang=en">The system is not designed for replications</a>
+          <span class="media-outlet">University of Münster Newsportal</span>
+        </span>
+      </li>
+      <li class="media-item">
+        <span class="media-date">02/2025</span>
+        <span class="media-body">
+          <a href="https://replicationnetwork.com/2025/02/08/roseler-replication-research-symposium-and-journal/">Replication Research Symposium and Journal</a>
+          <span class="media-outlet">The Replication Network Blog</span>
+        </span>
+      </li>
+      <li class="media-item">
+        <span class="media-date">08/2024</span>
+        <span class="media-body">
+          <a href="https://www.nature.com/articles/d41586-024-02598-w">No more hunting for replication studies</a>
+          <span class="media-outlet">Nature Index</span>
+        </span>
+      </li>
+    </ul>
+  </section>
 </div>
 {% endblock %}

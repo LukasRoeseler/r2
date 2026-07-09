@@ -391,6 +391,30 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .team-note { margin-top: 1.2rem; color: var(--ink-soft); font-size: .92rem; }
 @media (max-width: 700px) { .team-plain { columns: 1; } }
 
+.team-intro { margin-bottom: 3rem; padding-bottom: 2.2rem; border-bottom: 1px solid var(--rule); }
+.team-intro .page-heading { margin-bottom: 1rem; }
+.team-intro .team-section-title { margin-top: 1.8rem; }
+
+/* Media coverage */
+.team-media { margin-top: 3rem; padding-top: .5rem; }
+.media-list { list-style: none; margin: 0; padding: 0; }
+.media-item {
+  display: flex; gap: 1.2rem; align-items: baseline; padding: 1rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.media-item:last-child { border-bottom: none; }
+.media-date {
+  flex-shrink: 0; width: 4.2rem; font-size: .78rem; font-weight: 700;
+  color: var(--muted); letter-spacing: .04em;
+}
+.media-body { font-size: .97rem; }
+.media-body a { font-weight: 600; }
+.media-outlet { display: block; color: var(--muted); font-size: .84rem; margin-top: .15rem; }
+@media (max-width: 500px) {
+  .media-item { flex-direction: column; gap: .3rem; }
+  .media-date { width: auto; }
+}
+
 /* Announcements */
 .announcement-list { list-style: none; margin: 0; padding: 0; }
 .announcement-item { border-bottom: 1px solid var(--rule); padding: 1.3rem 0; }

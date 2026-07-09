@@ -77,6 +77,20 @@ Set `BASE_URL: /` in `.github/workflows/build.yml`, add the domain under
 **Settings → Pages → Custom domain** (GitHub then serves a CNAME), and point
 the domain's DNS at GitHub Pages.
 
+## Citable snapshot for Zenodo
+
+**Actions → "Build Zenodo snapshot export" → Run workflow** builds the site
+with root-relative paths, zips it, and attaches the zip to a new GitHub
+Release (tagged `zenodo-export-<date>`) — run it whenever you want a new,
+dated, citable version. Download the zip from the release and upload it to
+Zenodo yourself, or connect this repo to
+[Zenodo's GitHub integration](https://docs.github.com/en/repositories/archiving-a-github-repository/referencing-and-citing-content)
+once, and every release you create this way becomes a new Zenodo version
+automatically. To browse the zip's contents locally before uploading, unzip
+it and run `python3 -m http.server` inside the folder (its own
+README-SNAPSHOT.txt repeats this) — the root-relative links only resolve
+correctly through a server, not by double-clicking `index.html`.
+
 ## Notes
 
 - GitHub disables scheduled workflows after ~60 days without repository

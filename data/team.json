@@ -311,8 +311,14 @@
      "slug": "prince-oppong-boakye"
     }
    ],
-   "noteHtml": "<p><strong>Institutional OJS Support</strong><br/>We are grateful to the University of Münster's OJS team, consisting of Stephanie Klötgen, Elisabeth Sawatzky, Jens Unkenholz and Claudia Mohr, for their wonderful support in working with Open Journal Systems.</p>",
+   "noteHtml": "",
    "title": "Former Members"
+  },
+  {
+   "hasPhotos": false,
+   "members": [],
+   "noteHtml": "<p>We are grateful to the University of Münster's OJS team, consisting of Stephanie Klötgen, Elisabeth Sawatzky, Jens Unkenholz and Claudia Mohr, for their wonderful support in working with Open Journal Systems.</p>",
+   "title": "Institutional OJS Support"
   }
  ]
 }

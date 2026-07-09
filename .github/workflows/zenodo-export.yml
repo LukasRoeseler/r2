@@ -1,0 +1,70 @@
+name: Build Zenodo snapshot export
+
+# Manual only - the site owner runs this whenever they want a new, citable
+# snapshot to upload to Zenodo (or link via Zenodo's GitHub integration,
+# which turns each GitHub Release into a new Zenodo version automatically).
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # create a GitHub Release
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build with root-relative paths
+        # BASE_URL "/" (rather than "/<repo>/") so the export is portable:
+        # unzip it anywhere and serve the folder with any static file
+        # server rooted at its own top level (see the README this step
+        # writes into the export) instead of GitHub Pages' /<repo>/ prefix.
+        env:
+          BASE_URL: /
+        run: python scripts/build.py
+
+      - name: Add a README to the export
+        run: |
+          cat > _site/README-SNAPSHOT.txt <<'EOF'
+          Replication Research (R2) mirror - static snapshot
+          ====================================================
+
+          This is a point-in-time, self-contained copy of the R2 mirror site
+          (the live version normally runs at https://lukasroeseler.github.io/r2/,
+          built from https://github.com/LukasRoeseler/r2).
+
+          To browse it exactly as it looked live, unzip this archive and serve
+          the folder with any static file server, then open the printed URL:
+
+              python3 -m http.server 8000
+              # or: npx serve .
+
+          Opening index.html directly by double-clicking (file://) will not
+          resolve internal links correctly, since they are root-relative
+          paths meant for a server - please serve the folder instead.
+          EOF
+
+      - name: Zip the export
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          echo "SNAPSHOT_DATE=$DATE" >> "$GITHUB_ENV"
+          cd _site && zip -r "../r2-mirror-snapshot-$DATE.zip" . -x '.git*'
+
+      - name: Create GitHub Release with the snapshot attached
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "zenodo-export-${SNAPSHOT_DATE}" \
+            "r2-mirror-snapshot-${SNAPSHOT_DATE}.zip" \
+            --title "Snapshot ${SNAPSHOT_DATE}" \
+            --notes "Static HTML snapshot of the R2 mirror, for archiving on Zenodo. See README-SNAPSHOT.txt inside the zip for how to browse it locally."

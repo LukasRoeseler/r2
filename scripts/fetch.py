@@ -544,6 +544,15 @@ def _team_slug(name):
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 
 
+def _first_meaningful_child(node):
+    """First child of a BeautifulSoup tag that isn't just whitespace text."""
+    for c in node.contents:
+        if isinstance(c, str) and not c.strip():
+            continue
+        return c
+    return None
+
+
 def parse_team(page_html):
     """Turn the editorial-team page (p>strong headings + ul lists) into
     structured sections. Every section gets photo circles; members without
@@ -556,9 +565,24 @@ def parse_team(page_html):
         if node.name == "p":
             strong = node.find("strong")
             if strong and text_of(strong) == text_of(node):
+                # The whole paragraph is just the heading, e.g. <p><strong>
+                # Former Members</strong></p>.
                 current = {"title": text_of(strong), "members": [],
                            "hasPhotos": True, "noteHtml": ""}
                 sections.append(current)
+            elif strong and _first_meaningful_child(node) is strong:
+                # Heading and body text share one paragraph, e.g. <p><strong>
+                # Institutional OJS Support</strong><br/>We are grateful...
+                # </p>. Split the leading heading off into its own section.
+                # This pattern is prose, not a member list, so no photo grid.
+                current = {"title": text_of(strong), "members": [],
+                           "hasPhotos": False, "noteHtml": ""}
+                sections.append(current)
+                strong.extract()
+                br = _first_meaningful_child(node)
+                if br is not None and getattr(br, "name", None) == "br":
+                    br.extract()
+                current["noteHtml"] += str(node)
             elif current is not None:
                 current["noteHtml"] += str(node)
         elif node.name == "ul" and current is not None:
@@ -579,7 +603,7 @@ def parse_team(page_html):
                     "roles": roles,
                     "slug": _team_slug(name),
                 })
-    return {"sections": [s for s in sections if s["members"]]}
+    return {"sections": [s for s in sections if s["members"] or s["noteHtml"]]}
 
 
 def scrape_announcements():

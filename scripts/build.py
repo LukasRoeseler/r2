@@ -445,11 +445,16 @@ def build_nav(nav_items, pages):
     for g in groups.values():
         used.update(g["children"])
 
+    # OJS's own nav labels, overridden for the mirror only - the URL/slug
+    # stays whatever OJS uses (editorialTeam/) so links keep working.
+    label_overrides = {"about/editorialTeam": "Who we are"}
+
     nav = []
     about_children = []
     for path in groups["about"]["children"]:
         u = url_for(path)
-        label = next((i["label"] for i in nav_items if i["path"] == path), None)
+        label = label_overrides.get(path) or next(
+            (i["label"] for i in nav_items if i["path"] == path), None)
         if u and label:
             about_children.append({"label": label, "url": u})
     if about_children:
