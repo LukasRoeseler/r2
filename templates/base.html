@@ -98,5 +98,20 @@
      scripts/fetch.py's fetch_goatcounter_views(). -->
 <script data-goatcounter="https://replicationresearch.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+<script>
+(function () {
+  var host = window.location.hostname;
+  document.querySelectorAll('a[href]').forEach(function (a) {
+    var href = a.getAttribute('href');
+    if (!href || href.charAt(0) === '#' || /^(mailto:|tel:|javascript:)/i.test(href)) return;
+    try {
+      if (new URL(href, window.location.href).hostname !== host) {
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+      }
+    } catch (e) {}
+  });
+})();
+</script>
 </body>
 </html>
