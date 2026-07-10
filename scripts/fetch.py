@@ -992,6 +992,18 @@ def _parse_sheet_date(raw):
         return raw.strip()
 
 
+def _prereview_url(doi):
+    """PREreview's write-a-prereview URL for a DOI, e.g.
+    '10.31234/osf.io/5e8mz_v1' -> '.../doi-10.31234-osf.io-5e8mz_v1/...'
+    - PREreview slugs any preprint DOI (OSF, arXiv, bioRxiv, ...) by
+    lowercasing it, prefixing "doi-", and replacing every "/" with "-".
+    Lowercasing matters: DOIs are case-insensitive, but PREreview's slug
+    matching isn't, and it stores them lowercase (e.g. "arXiv" -> "arxiv").
+    """
+    slug = "doi-" + doi.lower().replace("/", "-")
+    return "https://prereview.org/preprints/%s/write-a-prereview" % slug
+
+
 def fetch_under_review():
     """Submissions still active in review, for the home page's "Under
     Review" card. Only rows where the editors have filled in "Stage
@@ -1044,6 +1056,7 @@ def fetch_under_review():
                        or ([{"name": first_author, "affiliation": "", "orcid": ""}]
                            if first_author else []),
             "preprintUrl": doi_url,
+            "prereviewUrl": _prereview_url(doi) if doi else "",
             "status": status,
             "handlingEditor": (row.get("Handling Editor") or "").strip(),
             "submissionDate": _parse_sheet_date(row.get("Submission Date") or ""),

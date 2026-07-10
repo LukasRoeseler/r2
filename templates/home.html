@@ -2,11 +2,12 @@
 {% block content %}
 <section class="hero hero-compact">
   <div class="wrap">
-    <p class="hero-tagline">{{ journal.description }}</p>
+    <p class="hero-tagline">Replication Research is a diamond open-access and researcher-led journal.<br>We publish reproductions, replications, and conceptual articles concerned with repeatability.</p>
     <div class="hero-actions">
       <span class="btn-split">
-        <a class="split-left" href="{{ journal.submitUrl }}">Submit manuscript</a>
-        <a class="split-right" href="https://docs.google.com/forms/d/e/1FAIpQLScktynmACLlyYc7Ezp1dmcEWoyvr02Xy2D59F8o3JZyhCCaGw/viewform">Pre-submission inquiry</a>
+        <a class="split-item split-primary" href="{{ journal.submitUrl }}">Submit manuscript</a>
+        <a class="split-item" href="https://docs.google.com/forms/d/e/1FAIpQLScktynmACLlyYc7Ezp1dmcEWoyvr02Xy2D59F8o3JZyhCCaGw/viewform">Pre-submission inquiry</a>
+        <a class="split-item" href="{{ base }}#under-review">Review</a>
       </span>
     </div>
   </div>
@@ -58,15 +59,19 @@
         </p>
       </div>
     </div>
-    <div class="issue-feature issue-feature-follow issue-feature-highlight">
+    <div id="under-review" class="issue-feature issue-feature-follow issue-feature-highlight">
       <span class="issue-cover">
         <img src="{{ base }}static/img/under-review-cover.png" alt="">
       </span>
       <div class="issue-feature-body">
         <h3>Under Review</h3>
-        <p>Get in touch at <a href="mailto:contact@replicationresearch.org">contact@replicationresearch.org</a>
-          if you want to join review or do a review via
-          <a href="https://www.prereview.org/">PREreview.org</a>.</p>
+        <p>The following articles have been submitted and are currently
+          undergoing peer review or reproducibility checks. Get in touch at
+          <a href="mailto:contact@replicationresearch.org">contact@replicationresearch.org</a>
+          if you want to join review so that we can plan accordingly. You
+          can do so via
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSfrftKIFbNtqsfrx4jsB2tLC5IcEfFnHH26yhV24ugOzozaAQ/viewform">our system</a>
+          or via <a href="https://www.prereview.org/">PREreview.org</a>.</p>
         {% if under_review %}
         <ul class="article-list">
           {% for r in under_review %}
@@ -75,7 +80,10 @@
             <h4>{{ r.title }}</h4>
             <p class="article-authors">{% for au in r.authors %}{{ au.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% if r.handlingEditor %}{% if r.authors %}<br>{% endif %}Handling editor: {{ r.handlingEditor }}{% endif %}</p>
             {% if r.preprintUrl %}
-            <p class="article-links"><a class="pill pill-pdf" href="{{ r.preprintUrl }}">Preprint</a></p>
+            <p class="article-links">
+              <a class="pill pill-pdf" href="{{ r.preprintUrl }}">Preprint</a>
+              {% if r.prereviewUrl %}<a class="pill pill-download" href="{{ r.prereviewUrl }}">Write review</a>{% endif %}
+            </p>
             {% endif %}
           </li>
           {% endfor %}
