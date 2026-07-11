@@ -78,11 +78,11 @@
 
         {% if article.statsChart %}
         <div class="aside-box">
-          <h2>Usage</h2>
+          <h2>Monthly Usage</h2>
           <div class="stats-chart">{{ article.statsChart | safe }}</div>
           <p class="chart-legend">
-            <span class="legend-dot legend-views"></span> views / month
-            <span class="legend-dot legend-downloads"></span> downloads / month
+            <span class="legend-dot legend-views"></span> views
+            <span class="legend-dot legend-downloads"></span> downloads
           </p>
         </div>
         {% endif %}
