@@ -1102,13 +1102,19 @@ def _bare_doi(value):
 
 
 def _doi_or_url(value):
-    """A sheet cell may hold a bare DOI or a full https://doi.org/... link -
-    normalize either into a clickable URL."""
+    """A sheet cell may hold a full URL, a bare DOI (10.xxxx/...), or a bare
+    domain like "www.zenodo.org" - normalize any of those into a clickable
+    URL. Anything else (placeholder dashes, free text) becomes "", so a
+    cell the editors filled with "-" never turns into a broken link.
+    """
     value = (value or "").strip()
-    if not value:
-        return ""
-    return value if value.lower().startswith("http") \
-        else "https://doi.org/" + value
+    if re.match(r"^https?://", value, re.IGNORECASE):
+        return value
+    if re.match(r"^10\.\d{4,}/\S+$", value):
+        return "https://doi.org/" + value
+    if re.match(r"^[a-z0-9-]+(\.[a-z0-9-]+)+(/\S*)?$", value, re.IGNORECASE):
+        return "https://" + value
+    return ""
 
 
 def fetch_published_extras():
@@ -1131,7 +1137,7 @@ def fetch_published_extras():
         return None
 
     columns = {"peerReviewUrl": "Peer Review Report",
-               "reproCertUrl": "Repro Cert",
+               "reproCertUrl": "Reproducibility Certificate",
                "dataUrl": "Data",
                "readmeUrl": "Readme"}
     extras = {}

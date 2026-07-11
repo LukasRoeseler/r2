@@ -346,6 +346,14 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .detail-list dt { font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: .6rem; }
 .detail-list dd { margin: 0; font-size: .93rem; overflow-wrap: anywhere; }
 .citation-text { font-size: .88rem; color: var(--ink-soft); }
+.cite-box { position: relative; }
+.copy-btn {
+  position: absolute; top: .95rem; right: 1.1rem;
+  font: 600 .7rem var(--sans); color: var(--muted);
+  background: #fff; border: 1px solid var(--rule); border-radius: 6px;
+  padding: .15rem .5rem; cursor: pointer; transition: all .15s ease;
+}
+.copy-btn:hover { color: var(--accent-dark); border-color: var(--accent); }
 .citation-links a { margin-right: .9rem; font-size: .88rem; font-weight: 600; }
 .license-box img { margin-top: .4rem; }
 

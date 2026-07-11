@@ -56,10 +56,6 @@
         {% if article.pdf or article.pubpeerUrl %}
         <div class="aside-box aside-actions">
           {% if article.pdf %}<a class="btn btn-primary btn-block" href="{{ article.pdf.downloadUrl }}">Download PDF</a>{% endif %}
-          {% if article.peerReviewUrl %}<a class="btn btn-ghost btn-block" href="{{ article.peerReviewUrl }}">Peer Review Report</a>{% endif %}
-          {% if article.reproCertUrl %}<a class="btn btn-ghost btn-block" href="{{ article.reproCertUrl }}">Reproducibility Certificate</a>{% endif %}
-          {% if article.dataUrl %}<a class="btn btn-ghost btn-block" href="{{ article.dataUrl }}">Deposited Data</a>{% endif %}
-          {% if article.readmeUrl %}<a class="btn btn-ghost btn-block" href="{{ article.readmeUrl }}">Reproduction Instructions</a>{% endif %}
           {% if article.pubpeerUrl %}<a class="btn btn-ghost btn-block" href="{{ article.pubpeerUrl }}">Discuss on PubPeer</a>{% endif %}
         </div>
         {% endif %}
@@ -72,6 +68,9 @@
             {% if article.section %}<dt>Section</dt><dd>{{ article.section }}</dd>{% endif %}
             {% if article.categories %}<dt>Categories</dt><dd>{{ article.categories | join(", ") }}</dd>{% endif %}
             {% if article.doi %}<dt>DOI</dt><dd><a href="{{ article.doiUrl }}">{{ article.doi }}</a></dd>{% endif %}
+            {% for m in article.materials %}
+            <dt>{{ m.label }}</dt><dd><a href="{{ m.url }}">{{ m.display }}</a></dd>
+            {% endfor %}
             {% if not article.statsChart %}
             {% if article.stats and article.stats.totalViews is not none %}<dt>Views</dt><dd>{{ article.stats.totalViews }}</dd>{% endif %}
             {% if article.stats and article.stats.pdfDownloads is not none %}<dt>Downloads</dt><dd>{{ article.stats.pdfDownloads }}</dd>{% endif %}
@@ -91,8 +90,9 @@
         {% endif %}
 
         {% if article.citation %}
-        <div class="aside-box">
+        <div class="aside-box cite-box">
           <h2>How to cite</h2>
+          <button class="copy-btn" type="button" aria-label="Copy citation to clipboard">Copy</button>
           <p class="citation-text">{{ article.citation }}</p>
           <p class="citation-links">
             {% if article.bibtexUrl %}<a href="{{ article.bibtexUrl }}">BibTeX</a>{% endif %}
@@ -115,4 +115,38 @@
     </div>
   </article>
 </div>
+<script>
+// On phones the reference list would push everything below it far down the
+// page, so start it collapsed there; desktop keeps it open.
+if (window.matchMedia('(max-width: 900px)').matches) {
+  document.querySelectorAll('.article-references[open]').forEach(function (d) {
+    d.removeAttribute('open');
+  });
+}
+document.querySelectorAll('.cite-box .copy-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var text = btn.parentElement.querySelector('.citation-text').textContent.trim();
+    function done() {
+      btn.textContent = 'Copied ✓';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+    }
+    function fallback() {
+      // execCommand path for contexts without the async clipboard API.
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else {
+      fallback();
+    }
+  });
+});
+</script>
 {% endblock %}

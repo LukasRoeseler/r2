@@ -132,6 +132,15 @@ def sort_issues_newest_first(issues, articles_by_path):
     return issues
 
 
+def material_link_text(url):
+    """Readable text for a supplementary-material link in the Details box:
+    the DOI for doi.org links, otherwise the URL without its protocol/www
+    noise, ellipsized so a deep repository path can't blow up the box."""
+    import re
+    text = re.sub(r"^https?://(www\.)?(doi\.org/)?", "", url).rstrip("/")
+    return text[:47] + "…" if len(text) > 48 else text
+
+
 def normalize_article_stats(stats):
     """Fill in missing keys with None so templates never render a blank
     number, and compute the combined view count shown in the compact
@@ -190,9 +199,16 @@ def main():
         a["stats"] = normalize_article_stats(stats.get(a["submissionId"]))
         pub_month = a["datePublished"][:7] if a.get("datePublished") else None
         a["statsChart"] = stats_chart(a["stats"], pub_month) if a["stats"] else ""
-        extras = published_extras.get((a.get("doi") or "").strip().lower())
-        for key in ("peerReviewUrl", "reproCertUrl", "dataUrl", "readmeUrl"):
-            a[key] = (extras or {}).get(key) or ""
+        extras = published_extras.get((a.get("doi") or "").strip().lower()) or {}
+        a["materials"] = [
+            {"label": label, "url": extras[key],
+             "display": material_link_text(extras[key])}
+            for key, label in (("peerReviewUrl", "Peer Review Report"),
+                               ("reproCertUrl", "Repro. Certificate"),
+                               ("dataUrl", "Data"),
+                               ("readmeUrl", "Instructions"))
+            if extras.get(key)
+        ]
         a["pubpeerUrl"] = ("https://pubpeer.com/search?q="
                            + urllib.parse.quote(a["doi"], safe="")
                            if a.get("doi") else "")
