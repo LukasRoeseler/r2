@@ -56,37 +56,8 @@
         {% if article.pdf %}
         <div class="aside-box aside-actions">
           <a class="btn btn-primary btn-block" href="{{ article.pdf.downloadUrl }}">Download PDF</a>
-        </div>
-        {% endif %}
-
-        {% if article.stats %}
-        <div class="aside-box">
-          <h2>Usage</h2>
-          {% if article.stats.ojsViews is not none %}
-          <p class="stat-row"><span class="stat-num">{{ article.stats.ojsViews }}</span> views on OJS</p>
-          {% endif %}
-          {% if article.stats.mirrorViews is not none %}
-          <p class="stat-row"><span class="stat-num">{{ article.stats.mirrorViews }}</span> views on this mirror</p>
-          {% endif %}
-          {% if article.stats.pdfDownloads is not none %}
-          <p class="stat-row"><span class="stat-num">{{ article.stats.pdfDownloads }}</span> PDF downloads</p>
-          {% endif %}
-          {% if article.statsChart %}
-          <div class="stats-chart">{{ article.statsChart | safe }}</div>
-          <p class="chart-legend">
-            <span class="legend-dot legend-views"></span> OJS views / month
-            <span class="legend-dot legend-downloads"></span> downloads / month
-          </p>
-          {% endif %}
-          <p class="meta">
-            Views on OJS and PDF downloads come from the
-            <a href="{{ article.ojsUrl }}">journal site</a>{% if article.stats.asOf %} as of {{ article.stats.asOf }}{% endif %}
-            and only count activity on OJS itself. Views on this mirror are
-            tracked separately with <a href="https://www.goatcounter.com/">GoatCounter</a>,
-            a cookie-less analytics tool, and update whenever this site
-            rebuilds. Downloads are counted either way, since the Download
-            PDF button links straight to the OJS download URL.
-          </p>
+          {% if article.peerReviewUrl %}<a class="btn btn-ghost btn-block" href="{{ article.peerReviewUrl }}">Peer Review Report</a>{% endif %}
+          {% if article.reproCertUrl %}<a class="btn btn-ghost btn-block" href="{{ article.reproCertUrl }}">Reproducibility Certificate</a>{% endif %}
         </div>
         {% endif %}
 
@@ -98,6 +69,7 @@
             {% if article.section %}<dt>Section</dt><dd>{{ article.section }}</dd>{% endif %}
             {% if article.categories %}<dt>Categories</dt><dd>{{ article.categories | join(", ") }}</dd>{% endif %}
             {% if article.doi %}<dt>DOI</dt><dd><a href="{{ article.doiUrl }}">{{ article.doi }}</a></dd>{% endif %}
+            {% if article.stats and article.stats.totalViews is not none %}<dt>Views</dt><dd>{{ article.stats.totalViews }}</dd>{% endif %}
           </dl>
         </div>
 

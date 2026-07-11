@@ -3,8 +3,7 @@
   <a class="pill pill-pdf" href="{{ base }}articles/{{ a.urlPath }}/#preview">Read</a>
   <a class="pill pill-download" href="{{ a.pdf.downloadUrl }}">Download</a>
   {% endif %}
-  {% if a.stats %}
-  {% if a.stats.totalViews is not none %}<span class="pill pill-stat" title="{{ a.stats.viewsBreakdown }}">👁 {{ a.stats.totalViews }}</span>{% endif %}
-  {% if a.stats.pdfDownloads is not none %}<span class="pill pill-stat" title="PDF downloads">⬇ {{ a.stats.pdfDownloads }}</span>{% endif %}
+  {% if a.stats and a.stats.totalViews is not none %}
+  <span class="pill pill-stat" title="{{ a.stats.viewsBreakdown }}">👁 {{ a.stats.totalViews }}</span>
   {% endif %}
 </p>

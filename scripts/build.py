@@ -179,12 +179,18 @@ def main():
     if os.path.exists(under_review_path):
         under_review = load("under_review.json")
 
+    published_extras = {}
+    published_extras_path = os.path.join(DATA, "published_extras.json")
+    if os.path.exists(published_extras_path):
+        published_extras = load("published_extras.json")
+
     articles_by_path = {a["urlPath"]: a for a in articles}
     issues = sort_issues_newest_first(issues, articles_by_path)
     for a in articles:
         a["stats"] = normalize_article_stats(stats.get(a["submissionId"]))
-        pub_month = a["datePublished"][:7] if a.get("datePublished") else None
-        a["statsChart"] = stats_chart(a["stats"], pub_month) if a["stats"] else ""
+        extras = published_extras.get((a.get("doi") or "").strip().lower())
+        a["peerReviewUrl"] = (extras or {}).get("peerReviewUrl") or ""
+        a["reproCertUrl"] = (extras or {}).get("reproCertUrl") or ""
         pdf = next((g for g in a["galleys"] if g["localPdf"]), None)
         a["pdf"] = pdf
         if pdf:
@@ -283,54 +289,6 @@ def main():
 
     n_pages = sum(len(files) for _, _, files in os.walk(OUT))
     print("Built %d files into _site/ (base URL %s)" % (n_pages, BASE))
-
-
-def stats_chart(stats, min_month=None, width=256, height=96):
-    """Inline SVG grouped-bar chart of monthly OJS views and PDF downloads.
-
-    min_month (a "YYYY-MM" string, typically the article's publication
-    month) drops earlier months: an article published in April naturally
-    has zero views/downloads for October through March because it didn't
-    exist yet, and charting those as real zeros is misleading rather than
-    informative.
-
-    Mirror-page views (GoatCounter) are not charted here - GoatCounter's
-    tracking only started once the snippet was added, so a full monthly
-    history isn't meaningful yet; the total is shown as a plain number
-    instead (see the article page's Usage box).
-    """
-    views = {m: v for m, v in (stats.get("monthlyOjsViews") or {}).items()
-             if not min_month or m >= min_month}
-    downloads = {m: v for m, v in (stats.get("monthlyDownloads") or {}).items()
-                 if not min_month or m >= min_month}
-    months = sorted(set(views) | set(downloads))
-    if len(months) < 2:
-        return ""
-    peak = max([*views.values(), *downloads.values(), 1])
-    label_h = 14
-    plot_h = height - label_h
-    group_w = width / len(months)
-    bar_w = max(2.0, min(9.0, group_w / 2 - 1.5))
-    bars = []
-    for i, month in enumerate(months):
-        x0 = i * group_w + (group_w - 2 * bar_w - 1) / 2
-        for offset, series, css, kind in ((0, views, "bar-views", "OJS views"),
-                                          (bar_w + 1, downloads, "bar-downloads",
-                                           "downloads")):
-            value = series.get(month, 0)
-            h = plot_h * value / peak
-            bars.append(
-                '<rect class="%s" x="%.1f" y="%.1f" width="%.1f" height="%.1f">'
-                '<title>%s: %d %s</title></rect>'
-                % (css, x0 + offset, plot_h - h, bar_w, max(h, 0.5), month,
-                   value, kind))
-    labels = (
-        '<text class="chart-label" x="0" y="%d">%s</text>'
-        '<text class="chart-label" x="%d" y="%d" text-anchor="end">%s</text>'
-        % (height - 2, months[0], width, height - 2, months[-1]))
-    return ('<svg viewBox="0 0 %d %d" width="100%%" role="img" '
-            'aria-label="Monthly OJS views and PDF downloads">%s%s</svg>'
-            % (width, height, "".join(bars), labels))
 
 
 def simple_bar_chart(values, css_class, aria_label, width=280, height=90):

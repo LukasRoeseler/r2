@@ -318,8 +318,6 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 }
 .aside-box h2 { font-family: var(--sans); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 0 0 .6rem; }
 .aside-actions { background: #fff; }
-.stat-row { margin: .2rem 0; font-size: .95rem; }
-.stat-num { font-size: 1.3rem; font-weight: 700; color: var(--accent-dark); font-variant-numeric: tabular-nums; }
 .detail-list { margin: 0; }
 .detail-list dt { font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: .6rem; }
 .detail-list dd { margin: 0; font-size: .93rem; overflow-wrap: anywhere; }
@@ -327,17 +325,9 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .citation-links a { margin-right: .9rem; font-size: .88rem; font-weight: 600; }
 .license-box img { margin-top: .4rem; }
 
-/* Usage chart */
-.stats-chart { margin-top: .8rem; }
-.stats-chart svg { display: block; }
-.bar-views { fill: #7fb3d8; }
-.bar-downloads { fill: var(--accent-dark); }
 .chart-label { font-size: 9px; fill: var(--muted); font-family: var(--sans); }
-.chart-legend { font-size: .78rem; color: var(--muted); margin: .3rem 0 0; }
 .legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin: 0 .25rem 0 .6rem; vertical-align: -1px; }
 .legend-dot:first-child { margin-left: 0; }
-.legend-views { background: #7fb3d8; }
-.legend-downloads { background: var(--accent-dark); }
 
 /* Submissions page: resources + funnel charts */
 .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.1rem; margin: 1.4rem 0 2.4rem; }

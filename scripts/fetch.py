@@ -1067,6 +1067,53 @@ def fetch_under_review():
     return entries
 
 
+def _bare_doi(value):
+    return re.sub(r"^https?://(dx\.)?doi\.org/", "", (value or "").strip(),
+                  flags=re.IGNORECASE).lower()
+
+
+def _doi_or_url(value):
+    """A sheet cell may hold a bare DOI or a full https://doi.org/... link -
+    normalize either into a clickable URL."""
+    value = (value or "").strip()
+    if not value:
+        return ""
+    return value if value.lower().startswith("http") \
+        else "https://doi.org/" + value
+
+
+def fetch_published_extras():
+    """Peer Review Report / Reproducibility Certificate links for published
+    articles, keyed by the article's own (published) DOI. Editors fill in
+    the "Published DOI", "Peer Review Report", and "Repro Cert" columns on
+    the same tracking sheet once a submission is accepted; editorial
+    communications never get these filled in, so they never get the extra
+    buttons on the article page.
+    """
+    import csv
+    import io
+
+    print("Fetching peer-review/repro-cert links from the editors' sheet ...")
+    try:
+        r = get(SHEET_CSV_URL)
+        rows = list(csv.DictReader(io.StringIO(r.text)))
+    except Exception as e:  # noqa: BLE001
+        print("  sheet fetch failed: %s" % e, file=sys.stderr)
+        return None
+
+    extras = {}
+    for row in rows:
+        doi = _bare_doi(row.get("Published DOI"))
+        review_url = _doi_or_url(row.get("Peer Review Report"))
+        cert_url = _doi_or_url(row.get("Repro Cert"))
+        if doi and (review_url or cert_url):
+            extras[doi] = {"peerReviewUrl": review_url, "reproCertUrl": cert_url}
+
+    print("  %d published article(s) with review/certificate links"
+          % len(extras))
+    return extras
+
+
 # ---------------------------------------------------------------------------
 
 def write_json(name, payload):
@@ -1136,6 +1183,7 @@ def main():
     stats = fetch_stats(articles)
     submission_stats = fetch_submission_stats()
     under_review = fetch_under_review()
+    published_extras = fetch_published_extras()
 
     # Sanity checks: never publish an obviously broken harvest.
     problems = []
@@ -1175,6 +1223,10 @@ def main():
         write_json("under_review.json", under_review)
     else:
         print("Keeping previous under_review.json (fetch unavailable).")
+    if published_extras is not None:
+        write_json("published_extras.json", published_extras)
+    else:
+        print("Keeping previous published_extras.json (fetch unavailable).")
 
     print("Done: %d issues, %d articles, %d pages, %d announcements, %d PDFs."
           % (len(issues), len(articles), len(pages), len(announcements),
