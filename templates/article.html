@@ -37,6 +37,13 @@
         <p class="keyword-row">Keywords: {{ article.keywords | join(", ") }}</p>
         {% endif %}
 
+        {% if article.laySummary %}
+        <section class="article-lay-summary">
+          <h2>Lay Summary</h2>
+          <div class="prose"><p>{{ article.laySummary }}</p></div>
+        </section>
+        {% endif %}
+
         {% if article.pdf %}
         <section class="pdf-preview" id="preview">
           <h2>Article</h2>
@@ -53,10 +60,10 @@
       </div>
 
       <aside class="article-aside">
-        {% if article.pdf or article.pubpeerUrl %}
-        <div class="aside-box aside-actions">
+        {% if article.pdf or article.doi %}
+        <div class="aside-actions">
           {% if article.pdf %}<a class="btn btn-primary btn-block" href="{{ article.pdf.downloadUrl }}">Download PDF</a>{% endif %}
-          {% if article.pubpeerUrl %}<a class="btn btn-ghost btn-block" href="{{ article.pubpeerUrl }}">Discuss on PubPeer</a>{% endif %}
+          {% if article.doi %}<div class="altmetric-embed" data-badge-type="donut" data-badge-popover="left" data-hide-no-mentions="true" data-doi="{{ article.doi }}"></div>{% endif %}
         </div>
         {% endif %}
 
@@ -69,7 +76,7 @@
             {% if article.categories %}<dt>Categories</dt><dd>{{ article.categories | join(", ") }}</dd>{% endif %}
             {% if article.doi %}<dt>DOI</dt><dd><a href="{{ article.doiUrl }}">{{ article.doi }}</a></dd>{% endif %}
             {% for m in article.materials %}
-            <dt>{{ m.label }}</dt><dd><a href="{{ m.url }}">{{ m.display }}</a></dd>
+            <dt>{{ m.label }}</dt><dd><a href="{{ m.url }}">{{ m.url }}</a></dd>
             {% endfor %}
             {% if not article.statsChart %}
             {% if article.stats and article.stats.totalViews is not none %}<dt>Views</dt><dd>{{ article.stats.totalViews }}</dd>{% endif %}
@@ -80,7 +87,7 @@
 
         {% if article.statsChart %}
         <div class="aside-box">
-          <h2>Monthly Usage</h2>
+          <h2>Monthly Readers</h2>
           <div class="stats-chart">{{ article.statsChart | safe }}</div>
           <p class="chart-legend">
             <span class="legend-dot legend-views"></span> views
@@ -115,6 +122,9 @@
     </div>
   </article>
 </div>
+<!-- Altmetric attention badge; the embed hides itself entirely for DOIs
+     with no Altmetric data (data-hide-no-mentions above). -->
+<script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
 <script>
 // On phones the reference list would push everything below it far down the
 // page, so start it collapsed there; desktop keeps it open.

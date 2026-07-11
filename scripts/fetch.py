@@ -1118,12 +1118,11 @@ def _doi_or_url(value):
 
 
 def fetch_published_extras():
-    """Per-article links the editors track in the sheet rather than in OJS
+    """Per-article extras the editors track in the sheet rather than in OJS
     - peer review report, reproducibility certificate, deposited data, and
-    reproduction instructions - keyed by the article's own (published) DOI
-    via the "Published DOI" column. Editorial communications never get
-    these columns filled in, so they never get the extra buttons on the
-    article page.
+    a lay summary - keyed by the article's own (published) DOI via the
+    "Published DOI" column. Rows without these columns filled in simply
+    don't get the extra rows/summary on the article page.
     """
     import csv
     import io
@@ -1138,14 +1137,14 @@ def fetch_published_extras():
 
     columns = {"peerReviewUrl": "Peer Review Report",
                "reproCertUrl": "Reproducibility Certificate",
-               "dataUrl": "Data",
-               "readmeUrl": "Readme"}
+               "dataUrl": "Data"}
     extras = {}
     for row in rows:
         doi = _bare_doi(row.get("Published DOI"))
-        links = {key: _doi_or_url(row.get(col)) for key, col in columns.items()}
-        if doi and any(links.values()):
-            extras[doi] = links
+        entry = {key: _doi_or_url(row.get(col)) for key, col in columns.items()}
+        entry["laySummary"] = (row.get("Lay Summary") or "").strip()
+        if doi and any(entry.values()):
+            extras[doi] = entry
 
     print("  %d published article(s) with review/certificate links"
           % len(extras))

@@ -132,15 +132,6 @@ def sort_issues_newest_first(issues, articles_by_path):
     return issues
 
 
-def material_link_text(url):
-    """Readable text for a supplementary-material link in the Details box:
-    the DOI for doi.org links, otherwise the URL without its protocol/www
-    noise, ellipsized so a deep repository path can't blow up the box."""
-    import re
-    text = re.sub(r"^https?://(www\.)?(doi\.org/)?", "", url).rstrip("/")
-    return text[:47] + "…" if len(text) > 48 else text
-
-
 def normalize_article_stats(stats):
     """Fill in missing keys with None so templates never render a blank
     number, and compute the combined view count shown in the compact
@@ -201,17 +192,13 @@ def main():
         a["statsChart"] = stats_chart(a["stats"], pub_month) if a["stats"] else ""
         extras = published_extras.get((a.get("doi") or "").strip().lower()) or {}
         a["materials"] = [
-            {"label": label, "url": extras[key],
-             "display": material_link_text(extras[key])}
+            {"label": label, "url": extras[key]}
             for key, label in (("peerReviewUrl", "Peer Review Report"),
                                ("reproCertUrl", "Repro. Certificate"),
-                               ("dataUrl", "Data"),
-                               ("readmeUrl", "Instructions"))
+                               ("dataUrl", "Data"))
             if extras.get(key)
         ]
-        a["pubpeerUrl"] = ("https://pubpeer.com/search?q="
-                           + urllib.parse.quote(a["doi"], safe="")
-                           if a.get("doi") else "")
+        a["laySummary"] = extras.get("laySummary") or ""
         pdf = next((g for g in a["galleys"] if g["localPdf"]), None)
         a["pdf"] = pdf
         if pdf:
@@ -339,16 +326,26 @@ def stats_chart(stats, min_month=None, width=256, height=96):
         return ""
     peak = max([*views.values(), *downloads.values(), 1])
     label_h = 14
+    axis_w = 30       # room left of the y-axis for its tick labels
     plot_h = height - label_h
-    pad = 5
-    step = (width - 2 * pad) / (len(months) - 1)
+    x0, x1 = axis_w + 4, width - 6
+    step = (x1 - x0) / (len(months) - 1)
 
     def point(i, value):
         # 4px headroom so the peak's dot isn't clipped at the top edge.
-        return (pad + i * step,
+        return (x0 + i * step,
                 4 + (plot_h - 8) * (1 - value / peak))
 
-    parts = []
+    parts = [
+        '<line class="chart-axis" x1="%d" y1="2" x2="%d" y2="%d"/>'
+        % (axis_w, axis_w, plot_h),
+        '<line class="chart-axis" x1="%d" y1="%d" x2="%d" y2="%d"/>'
+        % (axis_w, plot_h, width, plot_h),
+        '<text class="chart-label" x="%d" y="10" text-anchor="end">%d</text>'
+        % (axis_w - 4, peak),
+        '<text class="chart-label" x="%d" y="%d" text-anchor="end">0</text>'
+        % (axis_w - 4, plot_h),
+    ]
     for series, css, kind in ((views, "views", "views"),
                               (downloads, "downloads", "downloads")):
         coords = [point(i, series.get(m, 0)) for i, m in enumerate(months)]
@@ -359,13 +356,13 @@ def stats_chart(stats, min_month=None, width=256, height=96):
                 '<circle class="dot-%s" cx="%.1f" cy="%.1f" r="2.5">'
                 '<title>%s: %d %s</title></circle>'
                 % (css, x, y, month, series.get(month, 0), kind))
-    labels = (
-        '<text class="chart-label" x="0" y="%d">%s</text>'
+    parts.append(
+        '<text class="chart-label" x="%d" y="%d">%s</text>'
         '<text class="chart-label" x="%d" y="%d" text-anchor="end">%s</text>'
-        % (height - 2, months[0], width, height - 2, months[-1]))
+        % (axis_w, height - 2, months[0], width, height - 2, months[-1]))
     return ('<svg viewBox="0 0 %d %d" width="100%%" role="img" '
-            'aria-label="Monthly views and PDF downloads">%s%s</svg>'
-            % (width, height, "".join(parts), labels))
+            'aria-label="Monthly readers: views and PDF downloads per month">'
+            '%s</svg>' % (width, height, "".join(parts)))
 
 
 def simple_bar_chart(values, css_class, aria_label, width=280, height=90):

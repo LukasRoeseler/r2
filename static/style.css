@@ -319,7 +319,8 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .orcid { margin-left: .3rem; vertical-align: -1px; }
 .author-affiliation { display: block; color: var(--muted); font-size: .84rem; }
 .article-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 2.5rem; align-items: start; }
-.article-abstract h2, .pdf-preview h2 { font-size: 1.35rem; margin: 0 0 .6rem; }
+.article-abstract h2, .article-lay-summary h2, .pdf-preview h2 { font-size: 1.35rem; margin: 0 0 .6rem; }
+.article-lay-summary { margin-top: 1.6rem; }
 .keyword-row { margin: 1.2rem 0; font-size: .93rem; color: var(--ink-soft); }
 
 .pdf-preview { margin-top: 2.2rem; }
@@ -341,7 +342,8 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   padding: 1.1rem 1.2rem; margin-bottom: 1.1rem;
 }
 .aside-box h2 { font-family: var(--sans); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 0 0 .6rem; }
-.aside-actions { background: #fff; }
+.aside-actions { margin-bottom: 1.1rem; }
+.aside-actions .altmetric-embed { margin-top: .7rem; }
 .detail-list { margin: 0; }
 .detail-list dt { font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: .6rem; }
 .detail-list dd { margin: 0; font-size: .93rem; overflow-wrap: anywhere; }
@@ -364,6 +366,7 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .line-downloads { fill: none; stroke: var(--accent-dark); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .dot-views { fill: #7fb3d8; }
 .dot-downloads { fill: var(--accent-dark); }
+.chart-axis { stroke: var(--rule); stroke-width: 1; }
 .chart-label { font-size: 9px; fill: var(--muted); font-family: var(--sans); }
 .chart-legend { font-size: .78rem; color: var(--muted); margin: .3rem 0 0; }
 .legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin: 0 .25rem 0 .6rem; vertical-align: -1px; }
@@ -510,6 +513,7 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   .article-main, .article-aside { display: contents; }
   .article-abstract { order: 1; }
   .keyword-row { order: 2; }
+  .article-lay-summary { order: 2; }
   .article-aside .aside-box { order: 6; }
   .article-aside .aside-actions { order: 3; }
   .pdf-preview { order: 4; }
