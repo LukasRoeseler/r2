@@ -195,7 +195,8 @@ def main():
             {"label": label, "url": extras[key]}
             for key, label in (("peerReviewUrl", "Peer Review Report"),
                                ("reproCertUrl", "Repro. Certificate"),
-                               ("dataUrl", "Data"))
+                               ("dataUrl", "Data"),
+                               ("materialsUrl", "Materials"))
             if extras.get(key)
         ]
         a["laySummary"] = extras.get("laySummary") or ""

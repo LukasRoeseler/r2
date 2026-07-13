@@ -1137,7 +1137,8 @@ def fetch_published_extras():
 
     columns = {"peerReviewUrl": "Peer Review Report",
                "reproCertUrl": "Reproducibility Certificate",
-               "dataUrl": "Data"}
+               "dataUrl": "Data",
+               "materialsUrl": "Materials"}
     extras = {}
     for row in rows:
         doi = _bare_doi(row.get("Published DOI"))
