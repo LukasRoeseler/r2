@@ -15,6 +15,14 @@ import urllib.parse
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    from pdf_fulltext import extract_fulltext
+except ImportError:  # pymupdf not installed - build without full-text sections
+    def extract_fulltext(pdf_path, fig_url_prefix):
+        return {"html": "", "figures": []}
+    print("pymupdf not available - skipping PDF full-text extraction.")
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 OUT = os.path.join(ROOT, "_site")
@@ -232,6 +240,9 @@ def main():
 
     articles_by_path = {a["urlPath"]: a for a in articles}
     issues = sort_issues_newest_first(issues, articles_by_path)
+    # Figure PNGs extracted from PDFs, held in memory until after the
+    # assets/static copytree calls (their destination must not exist yet).
+    fulltext_figures = []
     for a in articles:
         a["stats"] = normalize_article_stats(stats.get(a["submissionId"]))
         pub_month = a["datePublished"][:7] if a.get("datePublished") else None
@@ -248,11 +259,20 @@ def main():
         a["laySummary"] = extras.get("laySummary") or ""
         pdf = next((g for g in a["galleys"] if g["localPdf"]), None)
         a["pdf"] = pdf
+        a["fullTextHtml"] = ""
         if pdf:
             a["pdfLocalUrl"] = BASE + "assets/pdf/" + pdf["localPdf"]
             a["viewerUrl"] = (BASE + "static/pdfjs/web/viewer.html?file="
                               + urllib.parse.quote(a["pdfLocalUrl"], safe="")
                               + "#zoom=page-width")
+            pdf_path = os.path.join(ROOT, "assets", "pdf", pdf["localPdf"])
+            if os.path.exists(pdf_path):
+                prefix = BASE + "assets/fulltext/" + a["urlPath"] + "-"
+                result = extract_fulltext(pdf_path, prefix)
+                a["fullTextHtml"] = result["html"]
+                for name, png in result["figures"]:
+                    fulltext_figures.append(
+                        (a["urlPath"] + "-" + name, png))
         else:
             a["pdfLocalUrl"] = a["viewerUrl"] = ""
 
@@ -346,6 +366,12 @@ def main():
     # Static assets.
     shutil.copytree(os.path.join(ROOT, "assets"), os.path.join(OUT, "assets"))
     shutil.copytree(os.path.join(ROOT, "static"), os.path.join(OUT, "static"))
+    if fulltext_figures:
+        fig_dir = os.path.join(OUT, "assets", "fulltext")
+        os.makedirs(fig_dir, exist_ok=True)
+        for name, png in fulltext_figures:
+            with open(os.path.join(fig_dir, name), "wb") as fh:
+                fh.write(png)
     open(os.path.join(OUT, ".nojekyll"), "w").close()
 
     n_pages = sum(len(files) for _, _, files in os.walk(OUT))

@@ -44,6 +44,15 @@
         </section>
         {% endif %}
 
+        {% if article.fullTextHtml %}
+        <section class="article-fulltext">
+          <h2>Full Text</h2>
+          <div class="prose fulltext-body">{{ article.fullTextHtml | safe }}</div>
+          <p class="meta">Text extracted automatically from the typeset PDF —
+            the PDF below is the version of record.</p>
+        </section>
+        {% endif %}
+
         {% if article.pdf %}
         <section class="pdf-preview" id="preview">
           <h2>Article</h2>
@@ -128,6 +137,15 @@
     </div>
   </article>
 </div>
+
+{% if article.fullTextHtml %}
+<div class="lightbox" id="figure-lightbox" hidden>
+  <figure>
+    <img src="" alt="">
+    <figcaption></figcaption>
+  </figure>
+</div>
+{% endif %}
 <!-- Altmetric attention badge; the embed hides itself entirely for DOIs
      with no Altmetric data (data-hide-no-mentions above). -->
 <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
@@ -183,5 +201,33 @@ document.querySelectorAll('.cite-box .copy-btn').forEach(function (btn) {
     }
   });
 });
+
+// Figure lightbox: click a figure to see it enlarged with its caption.
+(function () {
+  var box = document.getElementById('figure-lightbox');
+  if (!box) return;
+  var img = box.querySelector('img');
+  var caption = box.querySelector('figcaption');
+  function close() {
+    box.hidden = true;
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('.figure-zoom').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var src = btn.querySelector('img');
+      var fig = btn.closest('figure');
+      var cap = fig ? fig.querySelector('figcaption') : null;
+      img.src = src.src;
+      img.alt = src.alt;
+      caption.textContent = cap ? cap.textContent : '';
+      box.hidden = false;
+      document.body.style.overflow = 'hidden';
+    });
+  });
+  box.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !box.hidden) close();
+  });
+})();
 </script>
 {% endblock %}

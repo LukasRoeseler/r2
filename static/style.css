@@ -324,9 +324,43 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .orcid { margin-left: .3rem; vertical-align: -1px; }
 .author-affiliation { display: block; color: var(--muted); font-size: .84rem; }
 .article-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 2.5rem; align-items: start; position: relative; }
-.article-abstract h2, .article-lay-summary h2, .pdf-preview h2 { font-size: 1.35rem; margin: 0 0 .6rem; }
+.article-abstract h2, .article-lay-summary h2, .article-fulltext > h2, .pdf-preview h2 { font-size: 1.35rem; margin: 0 0 .6rem; }
 .article-lay-summary { margin-top: 1.6rem; }
 .keyword-row { margin: 1.2rem 0; font-size: .93rem; color: var(--ink-soft); }
+
+/* Full text extracted from the PDF */
+.article-fulltext { margin-top: 2.2rem; border-top: 1px solid var(--rule); padding-top: 1.4rem; }
+/* .prose.fulltext-body outranks .prose's later overflow-wrap: break-word;
+   "anywhere" (unlike break-word) also shrinks min-content size, so long
+   reference URLs can't widen the flex column on phones. */
+.prose.fulltext-body { font-size: .97rem; overflow-wrap: anywhere; }
+.fulltext-body h3 { font-size: 1.2rem; margin-top: 1.8rem; }
+.fulltext-body h4 { font-size: 1.05rem; margin-top: 1.4rem; }
+.fulltext-figure { margin: 1.6rem 0; text-align: center; }
+.fulltext-figure .figure-zoom {
+  display: inline-block; padding: 0; border: 1px solid var(--rule);
+  border-radius: var(--radius); background: #fff; cursor: zoom-in;
+  max-width: 100%; overflow: hidden; transition: box-shadow .15s ease;
+}
+.fulltext-figure .figure-zoom:hover { box-shadow: var(--shadow); }
+.fulltext-figure img { display: block; max-width: 100%; height: auto; }
+.fulltext-figure figcaption {
+  font-size: .85rem; color: var(--ink-soft); margin-top: .6rem; text-align: left;
+}
+.fulltext-equation { text-align: center; }
+.fulltext-equation img { max-width: 100%; height: auto; }
+
+/* Figure lightbox overlay */
+.lightbox {
+  position: fixed; inset: 0; z-index: 100; background: rgba(15, 22, 30, .88);
+  display: flex; align-items: center; justify-content: center; cursor: zoom-out;
+}
+.lightbox figure { margin: 0; max-width: min(92vw, 1100px); text-align: center; }
+.lightbox img {
+  max-width: 100%; max-height: 80vh; background: #fff;
+  border-radius: var(--radius); box-shadow: 0 8px 40px rgba(0, 0, 0, .5);
+}
+.lightbox figcaption { color: #e6edf3; font-size: .92rem; margin-top: .9rem; }
 
 .pdf-preview { margin-top: 2.2rem; }
 .pdf-frame {
@@ -602,6 +636,9 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   .article-lay-summary { order: 2; }
   .article-aside .aside-section { order: 6; }
   .article-aside .aside-actions { order: 3; }
+  /* min-width:0 - a flex item's default min-width:auto sizes it to its
+     longest unbreakable word (reference URLs), overflowing the viewport. */
+  .article-fulltext { order: 4; min-width: 0; }
   .pdf-preview { order: 4; }
   .article-references { order: 5; }
   .issue-feature, .issue-header { grid-template-columns: 1fr; }
