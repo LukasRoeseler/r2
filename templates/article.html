@@ -53,18 +53,18 @@
         </section>
         {% endif %}
 
-        {% if article.pdf %}
-        <section class="pdf-preview" id="preview">
-          <h2>Article</h2>
-          <iframe class="pdf-frame" src="{{ article.viewerUrl }}" title="PDF preview of {{ article.title }}" loading="lazy" allowfullscreen></iframe>
-        </section>
-        {% endif %}
-
         {% if article.referencesHtml %}
         <details class="article-references" open>
           <summary><h2>References</h2></summary>
           <div class="prose references-body">{{ article.referencesHtml | safe }}</div>
         </details>
+        {% endif %}
+
+        {% if article.pdf %}
+        <section class="pdf-preview" id="preview">
+          <h2>Article</h2>
+          <iframe class="pdf-frame" src="{{ article.viewerUrl }}" title="PDF preview of {{ article.title }}" loading="lazy" allowfullscreen></iframe>
+        </section>
         {% endif %}
       </div>
 

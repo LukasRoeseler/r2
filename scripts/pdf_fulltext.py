@@ -26,6 +26,10 @@ PAGE_NUM_RE = re.compile(r"^\d{1,3}$")
 MATH_FONT_RE = re.compile(r"CM[A-Z]|Math|Symbol|MSAM|MSBM|MJX")
 BOLD_FLAG = 16
 
+# The reference list is scraped from OJS and shown in its own section on the
+# article page, so the PDF's copy is skipped rather than duplicated.
+REFERENCE_HEADINGS = {"references", "bibliography", "literature", "literatur"}
+
 
 def _norm(text):
     return re.sub(r"\s+", " ", text).strip().lower()
@@ -193,6 +197,7 @@ def _extract(pdf_path, fig_url_prefix, ignore_toc):
     parts = []
     figures = []
     started = first_heading is None    # no bookmarks -> include everything
+    in_references = False
     fig_n = 0
 
     for page in doc:
@@ -242,6 +247,11 @@ def _extract(pdf_path, fig_url_prefix, ignore_toc):
                 else:
                     continue
 
+            if is_heading:
+                in_references = norm in REFERENCE_HEADINGS
+            if in_references:
+                continue               # the page shows OJS's reference list
+
             rect = fitz.Rect(block["bbox"])
             if i in fig_rects:
                 png = _render_clip(page, fig_rects[i])
@@ -275,7 +285,7 @@ def _extract(pdf_path, fig_url_prefix, ignore_toc):
             else:
                 parts.append("<p>%s</p>" % html.escape(text))
 
-        if started:
+        if started and not in_references:
             for rect in standalone:
                 png = _render_clip(page, rect)
                 if png:

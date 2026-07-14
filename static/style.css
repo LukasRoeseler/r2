@@ -639,8 +639,8 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   /* min-width:0 - a flex item's default min-width:auto sizes it to its
      longest unbreakable word (reference URLs), overflowing the viewport. */
   .article-fulltext { order: 4; min-width: 0; }
-  .pdf-preview { order: 4; }
-  .article-references { order: 5; }
+  .article-references { order: 4; }
+  .pdf-preview { order: 5; }
   .issue-feature, .issue-header { grid-template-columns: 1fr; }
   .issue-cover img, .issue-cover-lg { max-width: 160px; }
   /* The category dropdown panel is absolutely positioned under its summary
