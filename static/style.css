@@ -337,12 +337,12 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .fulltext-body h3 { font-size: 1.2rem; margin-top: 1.8rem; }
 .fulltext-body h4 { font-size: 1.05rem; margin-top: 1.4rem; }
 .fulltext-figure { margin: 1.6rem 0; text-align: center; }
+/* Zoom/lightbox removed – figures are now static images. */
 .fulltext-figure .figure-zoom {
   display: inline-block; padding: 0; border: 1px solid var(--rule);
-  border-radius: var(--radius); background: #fff; cursor: zoom-in;
-  max-width: 100%; overflow: hidden; transition: box-shadow .15s ease;
+  border-radius: var(--radius); background: #fff;
+  max-width: 100%; overflow: hidden;
 }
-.fulltext-figure .figure-zoom:hover { box-shadow: var(--shadow); }
 .fulltext-figure img { display: block; max-width: 100%; height: auto; }
 .fulltext-figure figcaption {
   font-size: .85rem; color: var(--ink-soft); margin-top: .6rem; text-align: left;
@@ -350,19 +350,27 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .fulltext-equation { text-align: center; }
 .fulltext-equation img { max-width: 100%; height: auto; }
 
-/* Figure lightbox overlay */
-.lightbox {
-  position: fixed; inset: 0; z-index: 100; background: rgba(15, 22, 30, .88);
-  display: flex; align-items: center; justify-content: center; cursor: zoom-out;
+/* Article view tabs: PDF (default) + experimental HTML full text */
+.article-views { margin-top: 2.2rem; }
+.view-tabs {
+  display: flex; gap: .3rem; border-bottom: 1px solid var(--rule); margin-bottom: 1.2rem;
 }
-.lightbox figure { margin: 0; max-width: min(92vw, 1100px); text-align: center; }
-.lightbox img {
-  max-width: 100%; max-height: 80vh; background: #fff;
-  border-radius: var(--radius); box-shadow: 0 8px 40px rgba(0, 0, 0, .5);
+.view-tab {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .6rem 1.1rem; font: 600 .95rem var(--sans); color: var(--muted);
+  background: none; border: none; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
 }
-.lightbox figcaption { color: #e6edf3; font-size: .92rem; margin-top: .9rem; }
+.view-tab:hover { color: var(--ink); }
+.view-tab.is-active { color: var(--accent-dark); border-bottom-color: var(--accent); }
+.view-tab-badge {
+  font: 700 .62rem var(--sans); text-transform: uppercase; letter-spacing: .06em;
+  color: var(--accent-dark); background: var(--accent-soft);
+  padding: .1rem .45rem; border-radius: 999px;
+}
+.view-panel[hidden] { display: none; }
 
-.pdf-preview { margin-top: 2.2rem; }
 .pdf-frame {
   width: 100%; height: min(78vh, 900px); border: 1px solid var(--rule);
   border-radius: var(--radius); box-shadow: var(--shadow); background: #525659;
@@ -638,9 +646,8 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   .article-aside .aside-actions { order: 3; }
   /* min-width:0 - a flex item's default min-width:auto sizes it to its
      longest unbreakable word (reference URLs), overflowing the viewport. */
-  .article-fulltext { order: 4; min-width: 0; }
-  .article-references { order: 4; }
-  .pdf-preview { order: 5; }
+  .article-views { order: 4; min-width: 0; }
+  .article-references { order: 5; }
   .issue-feature, .issue-header { grid-template-columns: 1fr; }
   .issue-cover img, .issue-cover-lg { max-width: 160px; }
   /* The category dropdown panel is absolutely positioned under its summary
