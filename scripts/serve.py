@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Serve _site/ locally under the same subpath GitHub Pages will use.
 
-http://localhost:8737/r2/  ->  _site/
+http://localhost:8737/  ->  _site/  (replicationresearch.github.io is a
+<user-or-org>.github.io repo, so GitHub Pages serves it at the domain root)
 
 Forces correct JavaScript MIME types (the Windows registry can map .js/.mjs
 to text/plain, which breaks pdf.js module loading in the browser).
@@ -11,7 +12,7 @@ import http.server
 import os
 
 PORT = 8737
-PREFIX = os.environ.get("BASE_URL", "/r2/").rstrip("/")
+PREFIX = os.environ.get("BASE_URL", "/").rstrip("/")
 SITE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                     "_site")
 

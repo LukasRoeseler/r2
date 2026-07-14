@@ -38,11 +38,23 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # A <user-or-org>.github.io repo is served at the domain root, not
+      # under /<repo-name>/ like a normal project-pages repo - keeps this
+      # workflow correct no matter which repo it runs in.
+      - name: Determine base URL
+        id: base_url
+        run: |
+          if [[ "${{ github.event.repository.name }}" == *.github.io ]]; then
+            echo "value=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=/${{ github.event.repository.name }}/" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Fetch content from OJS
         env:
           OJS_API_KEY: ${{ secrets.OJS_API_KEY }}
           GOATCOUNTER_API_TOKEN: ${{ secrets.GOATCOUNTER_API_TOKEN }}
-          BASE_URL: /${{ github.event.repository.name }}/
+          BASE_URL: ${{ steps.base_url.outputs.value }}
         run: python scripts/fetch.py
 
       - name: Commit refreshed content if changed
@@ -60,7 +72,7 @@ jobs:
 
       - name: Build static site
         env:
-          BASE_URL: /${{ github.event.repository.name }}/
+          BASE_URL: ${{ steps.base_url.outputs.value }}
         run: python scripts/build.py
 
       - name: Enable GitHub Pages (first run)

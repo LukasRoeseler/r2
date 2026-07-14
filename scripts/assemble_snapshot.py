@@ -23,7 +23,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = os.path.join(ROOT, "_site")
 DATA = os.path.join(ROOT, "data")
 
-LIVE_BASE = "https://lukasroeseler.github.io/r2/"
+LIVE_BASE = "https://replicationresearch.github.io/"
 
 MAIN_RE = re.compile(r'<main id="main">(.*)</main>', re.DOTALL)
 HEADER_RE = re.compile(r'(<header class="site-header">.*?</header>)', re.DOTALL)

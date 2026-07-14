@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Render the static mirror site from data/*.json into _site/.
 
-BASE_URL (env) is the path the site is served under, e.g.
-"/replication-research-mirror/" for GitHub project pages or "/" for a custom
-domain. The __BASE__ placeholder in harvested HTML is replaced with it.
+BASE_URL (env) is the path the site is served under. replicationresearch.
+github.io is a <user-or-org>.github.io repo, so GitHub Pages serves it at
+the domain root ("/") - a plain project-pages repo would need "/<repo>/"
+instead. The __BASE__ placeholder in harvested HTML is replaced with it.
 """
 
 import datetime
@@ -27,7 +28,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 OUT = os.path.join(ROOT, "_site")
 
-BASE = os.environ.get("BASE_URL", "/r2/")
+BASE = os.environ.get("BASE_URL", "/")
 if not BASE.startswith("/"):
     BASE = "/" + BASE
 if not BASE.endswith("/"):

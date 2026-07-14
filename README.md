@@ -42,10 +42,13 @@ to a custom domain later only means changing `BASE_URL`.
 
 ## One-time setup
 
-1. Create the GitHub repository (`LukasRoeseler/r2`) and push this folder
-   to `main`. (The workflow derives `BASE_URL` from the repository name, so
-   a rename only requires updating the defaults in `scripts/build.py` and
-   `scripts/serve.py` for local use.)
+1. Create the GitHub repository (currently
+   [`replicationresearch/replicationresearch.github.io`](https://github.com/replicationresearch/replicationresearch.github.io))
+   and push this folder to `main`. The workflow derives `BASE_URL` from the
+   repository name, root ("/") for a `<user-or-org>.github.io` repo name and
+   `/<repo>/` otherwise, so a rename only needs updating the defaults in
+   `scripts/build.py` and `scripts/serve.py` for local use if the new name
+   crosses that boundary.
 2. Add the OJS API key: **Settings → Secrets and variables → Actions →
    New repository secret**, name `OJS_API_KEY` (same token as in r2d2;
    from OJS: User Profile → API Key). Without it the site still builds,
@@ -68,13 +71,13 @@ to a custom domain later only means changing `BASE_URL`.
 pip install -r requirements.txt
 python scripts/fetch.py    # optional: put OJS_API_KEY=... in a .env file first
 python scripts/build.py
-python scripts/serve.py    # -> http://localhost:8737/r2/
+python scripts/serve.py    # -> http://localhost:8737/
 ```
 
 ## Custom domain later
 
-Set `BASE_URL: /` in `.github/workflows/build.yml`, add the domain under
-**Settings → Pages → Custom domain** (GitHub then serves a CNAME), and point
+`BASE_URL` is already root ("/") for this repo, so just add the domain under
+**Settings → Pages → Custom domain** (GitHub then serves a CNAME) and point
 the domain's DNS at GitHub Pages.
 
 ## Citable snapshot for Zenodo
