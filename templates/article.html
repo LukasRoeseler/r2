@@ -44,12 +44,38 @@
         </section>
         {% endif %}
 
-        {% if article.fullTextHtml %}
-        <section class="article-fulltext">
-          <h2>Full Text</h2>
-          <div class="prose fulltext-body">{{ article.fullTextHtml | safe }}</div>
-          <p class="meta">Text extracted automatically from the typeset PDF —
-            the PDF below is the version of record.</p>
+        {# Tabbed article view: PDF is the default; the extracted HTML full
+           text is an opt-in "experimental" tab. #}
+        {% if article.pdf or article.fullTextHtml %}
+        <section class="article-views" id="preview">
+          <div class="view-tabs" role="tablist" aria-label="Article views">
+            {% if article.pdf %}
+            <button class="view-tab is-active" type="button" role="tab"
+                    id="tab-pdf" aria-controls="panel-pdf" aria-selected="true">PDF</button>
+            {% endif %}
+            {% if article.fullTextHtml %}
+            <button class="view-tab{% if not article.pdf %} is-active{% endif %}" type="button" role="tab"
+                    id="tab-html" aria-controls="panel-html"
+                    aria-selected="{% if article.pdf %}false{% else %}true{% endif %}">
+              HTML <span class="view-tab-badge">experimental</span>
+            </button>
+            {% endif %}
+          </div>
+
+          {% if article.pdf %}
+          <div class="view-panel is-active" role="tabpanel" id="panel-pdf" aria-labelledby="tab-pdf">
+            <iframe class="pdf-frame" src="{{ article.viewerUrl }}" title="PDF preview of {{ article.title }}" loading="lazy" allowfullscreen></iframe>
+          </div>
+          {% endif %}
+
+          {% if article.fullTextHtml %}
+          <div class="view-panel{% if not article.pdf %} is-active{% endif %}" role="tabpanel"
+               id="panel-html" aria-labelledby="tab-html"{% if article.pdf %} hidden{% endif %}>
+            <div class="prose fulltext-body">{{ article.fullTextHtml | safe }}</div>
+            <p class="meta">Experimental view — text extracted automatically from
+              the typeset PDF. The PDF is the version of record.</p>
+          </div>
+          {% endif %}
         </section>
         {% endif %}
 
@@ -58,13 +84,6 @@
           <summary><h2>References</h2></summary>
           <div class="prose references-body">{{ article.referencesHtml | safe }}</div>
         </details>
-        {% endif %}
-
-        {% if article.pdf %}
-        <section class="pdf-preview" id="preview">
-          <h2>Article</h2>
-          <iframe class="pdf-frame" src="{{ article.viewerUrl }}" title="PDF preview of {{ article.title }}" loading="lazy" allowfullscreen></iframe>
-        </section>
         {% endif %}
       </div>
 
@@ -138,14 +157,6 @@
   </article>
 </div>
 
-{% if article.fullTextHtml %}
-<div class="lightbox" id="figure-lightbox" hidden>
-  <figure>
-    <img src="" alt="">
-    <figcaption></figcaption>
-  </figure>
-</div>
-{% endif %}
 <!-- Altmetric attention badge; the embed hides itself entirely for DOIs
      with no Altmetric data (data-hide-no-mentions above). -->
 <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script>
@@ -176,6 +187,29 @@ if (window.matchMedia('(max-width: 900px)').matches) {
     apply();
   });
 })();
+
+// Article view tabs: switch between the PDF (default) and the experimental
+// HTML full text.
+(function () {
+  var tabs = document.querySelectorAll('.view-tab');
+  if (!tabs.length) return;
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var panelId = tab.getAttribute('aria-controls');
+      document.querySelectorAll('.view-tab').forEach(function (t) {
+        var active = t === tab;
+        t.classList.toggle('is-active', active);
+        t.setAttribute('aria-selected', String(active));
+      });
+      document.querySelectorAll('.view-panel').forEach(function (p) {
+        var show = p.id === panelId;
+        p.classList.toggle('is-active', show);
+        p.hidden = !show;
+      });
+    });
+  });
+})();
+
 document.querySelectorAll('.cite-box .copy-btn').forEach(function (btn) {
   btn.addEventListener('click', function () {
     var text = btn.parentElement.querySelector('.citation-text').textContent.trim();
@@ -201,33 +235,5 @@ document.querySelectorAll('.cite-box .copy-btn').forEach(function (btn) {
     }
   });
 });
-
-// Figure lightbox: click a figure to see it enlarged with its caption.
-(function () {
-  var box = document.getElementById('figure-lightbox');
-  if (!box) return;
-  var img = box.querySelector('img');
-  var caption = box.querySelector('figcaption');
-  function close() {
-    box.hidden = true;
-    document.body.style.overflow = '';
-  }
-  document.querySelectorAll('.figure-zoom').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var src = btn.querySelector('img');
-      var fig = btn.closest('figure');
-      var cap = fig ? fig.querySelector('figcaption') : null;
-      img.src = src.src;
-      img.alt = src.alt;
-      caption.textContent = cap ? cap.textContent : '';
-      box.hidden = false;
-      document.body.style.overflow = 'hidden';
-    });
-  });
-  box.addEventListener('click', close);
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !box.hidden) close();
-  });
-})();
 </script>
 {% endblock %}
