@@ -100,11 +100,6 @@
         <div class="under-review-status">
           <h4>Submission status ({{ submissions.total }} total)</h4>
           {{ submissions.statusBar | safe }}
-          <ul class="status-legend">
-            <li><span class="legend-dot status-published"></span> Published — {{ submissions.statusCounts.published }}</li>
-            <li><span class="legend-dot status-underreview"></span> Under review — {{ submissions.statusCounts.underReview }}</li>
-            <li><span class="legend-dot status-declined"></span> Declined — {{ submissions.statusCounts.declined }}</li>
-          </ul>
         </div>
         {% endif %}
       </div>

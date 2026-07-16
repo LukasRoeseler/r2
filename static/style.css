@@ -420,10 +420,10 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 
 /* Full text extracted from the PDF */
 .article-fulltext { margin-top: 2.2rem; border-top: 1px solid var(--rule); padding-top: 1.4rem; }
-/* .prose.fulltext-body outranks .prose's later overflow-wrap: break-word;
-   "anywhere" (unlike break-word) also shrinks min-content size, so long
-   reference URLs can't widen the flex column on phones. */
-.prose.fulltext-body { font-size: .97rem; overflow-wrap: anywhere; }
+/* .prose.fulltext-body-content outranks .prose's later overflow-wrap:
+   break-word; "anywhere" (unlike break-word) also shrinks min-content
+   size, so long reference URLs can't widen the flex column on phones. */
+.prose.fulltext-body-content { font-size: .97rem; overflow-wrap: anywhere; }
 .fulltext-body h3 { font-size: 1.2rem; margin-top: 1.8rem; }
 .fulltext-body h4 { font-size: 1.05rem; margin-top: 1.4rem; }
 .fulltext-figure { margin: 1.6rem 0; text-align: center; }
@@ -458,6 +458,11 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; margin-bottom: 1.4rem;
   padding: 1rem 1.2rem; background: var(--bg-alt); border: 1px solid var(--rule); border-radius: var(--radius);
 }
+/* Explicit override: [hidden] and .fulltext-settings{display:flex} are
+   otherwise tied at equal specificity, so the browser's own [hidden]
+   default (display:none) loses to this rule and the panel never actually
+   hides - same class of bug as the nav dropdown's explicit show/hide. */
+.fulltext-settings[hidden] { display: none; }
 .setting-row { display: flex; flex-direction: column; gap: .4rem; }
 .setting-label {
   font-size: .75rem; font-weight: 700; text-transform: uppercase;
@@ -484,12 +489,25 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .fulltext-body[data-spacing="tight"] { line-height: 1.4; }
 .fulltext-body[data-spacing="normal"] { line-height: 1.65; }
 .fulltext-body[data-spacing="loose"] { line-height: 2; }
-.fulltext-body[data-width="narrow"] { max-width: 540px; margin: 0 auto; }
-.fulltext-body[data-width="normal"] { max-width: 760px; margin: 0 auto; }
-.fulltext-body[data-width="wide"] { max-width: none; }
-.fulltext-body[data-bg="dark"] {
-  background: #1c2733; color: #dbe4ee; padding: 1.6rem 1.8rem; border-radius: var(--radius);
+/* Column width constrains the reading measure of the text itself, not the
+   background box below - that box (data-bg) always spans the full width
+   of its container so a colored background reaches both edges regardless
+   of how narrow the text column is set to. */
+.fulltext-body[data-width="narrow"] .fulltext-body-content { max-width: 540px; margin: 0 auto; }
+.fulltext-body[data-width="normal"] .fulltext-body-content { max-width: 760px; margin: 0 auto; }
+.fulltext-body[data-width="wide"] .fulltext-body-content { max-width: none; }
+.fulltext-body[data-bg="forrt"] {
+  background: #FEFDF6; padding: 1.6rem clamp(1.5rem, 5vw, 3.5rem); border-radius: var(--radius);
 }
+.fulltext-body[data-bg="dark"] {
+  background: #1c2733; color: #dbe4ee; padding: 1.6rem clamp(1.5rem, 5vw, 3.5rem); border-radius: var(--radius);
+}
+/* Headings have their own site-wide color (h1-h4 { color: var(--ink) }),
+   which wins over inheriting the container's lighter color set above -
+   without this they render var(--ink) text on a var(--ink)-ish
+   background, i.e. invisible. */
+.fulltext-body[data-bg="dark"] h3,
+.fulltext-body[data-bg="dark"] h4 { color: inherit; }
 .fulltext-body[data-bg="dark"] a,
 .fulltext-body[data-bg="dark"] .cite-ref { color: #8fd0ff; }
 .fulltext-body[data-bg="dark"] .cite-ref { border-bottom-color: rgba(143, 208, 255, .35); }
@@ -649,15 +667,14 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 }
 .submission-chart-box h3 { font-size: 1rem; margin: 0 0 .8rem; }
 .bar-submissions { fill: var(--accent); }
+/* Segment fill colors for status_stacked_bar() - the counts themselves
+   are shown only via each segment's native hover tooltip, not a legend. */
 .status-published { fill: #2a8a5f; }
 .status-underreview { fill: #d9a441; }
 .status-declined { fill: #c1594f; }
-.status-legend { list-style: none; margin: .8rem 0 0; padding: 0; font-size: .85rem; color: var(--ink-soft); }
-.status-legend li { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem; }
-.status-legend .legend-dot { margin: 0; }
 
 /* Homepage "Under Review" card: same status-breakdown chart as the
-   Submissions page, reusing .status-legend/.status-* colors as-is. */
+   Submissions page. */
 .under-review-status { margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
 .under-review-status h4 { font-size: .95rem; margin: 0 0 .7rem; }
 
