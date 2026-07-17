@@ -1,1 +1,8 @@
-{}
+{
+ "10.17879/replicationresearch-2026-9577": {
+  "dataUrl": "https://www.zenodo.org/records/1",
+  "laySummary": "This editorial makes the point that researchers need to replicate more results from previous authors to build a good knowledge base of what is true or generalizable, but that is not enough: These replications also need to be seen and recognized more by the scientific community. The authors also argue that single replication studies of one specific effect are valuable and important, as they provide different information than so-called large-scale replications (where many authors replicate many effects and provide an overall estimate).",
+  "peerReviewUrl": "https://www.zenodo.org/records/1",
+  "reproCertUrl": "https://www.cos.io/abc"
+ }
+}

@@ -33,15 +33,15 @@
         </section>
         {% endif %}
 
-        {% if article.keywords %}
-        <p class="keyword-row">Keywords: {{ article.keywords | join(", ") }}</p>
-        {% endif %}
-
         {% if article.laySummary %}
         <section class="article-lay-summary">
           <h2>Lay Summary</h2>
           <div class="prose"><p>{{ article.laySummary }}</p></div>
         </section>
+        {% endif %}
+
+        {% if article.keywords %}
+        <p class="keyword-row">Keywords: {{ article.keywords | join(", ") }}</p>
         {% endif %}
 
         {# Tabbed article view: PDF is the default; the extracted HTML full
