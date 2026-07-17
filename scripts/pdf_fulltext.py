@@ -41,7 +41,6 @@ FOOTNOTE_Y_FRAC = 0.55              # ...and starts in the bottom ~45% of the
                                     # page (excludes author/affiliation
                                     # superscripts near the top of page 1,
                                     # which can otherwise look identical)
-FOOTNOTE_PLACEHOLDER_BASE = 0xE000  # Private Use Area; html.escape() leaves these alone
 
 # The reference list is scraped from OJS and shown in its own section on the
 # article page, so the PDF's copy is skipped rather than duplicated.
@@ -209,21 +208,27 @@ def _footnote_markers(doc, body_size):
     return per_page
 
 
+FOOTREF_MARKER_RE = re.compile(r"\x00FNREF:(\d+):(\d+)\x00")
+
+
 def _paragraph_html(block, footnote_ids, page_index, body_size,
                      skip_leading_marker=False):
     """HTML for a paragraph/footnote-body block: the same line/de-hyphenation
     assembly as _block_text(), corrected via _spaced_join, plus two
     footnote-aware behaviors: (1) a small digit span whose value is a
-    CONFIRMED footnote number for this page becomes a linked <sup>
-    cross-reference; any other small digit (ordinals, unrelated
+    CONFIRMED footnote number for this page becomes a \\x00FNREF:page:n\\x00
+    marker - a footnote's own body text (needed for its in-text reference's
+    hover tooltip) isn't known yet at this point in the single forward pass,
+    so the final <sup> markup is resolved later, once every footnote on
+    every page has been collected (see _resolve_footrefs). NUL/digits/colons
+    are untouched by html.escape(), so the marker survives being embedded
+    here and escaped normally. Any other small digit (ordinals, unrelated
     superscripts) is left as plain text, unchanged from before footnote
     support existed. (2) if skip_leading_marker, the block's own leading
     marker span is dropped from the output (used when rendering a
     footnote's own body - its number is shown separately via the
     footnote list's <li value=>).
     """
-    placeholders = {}
-    counter = [0]
     first_line_spans = block["lines"][0]["spans"] if block["lines"] else None
 
     def join(spans):
@@ -248,22 +253,31 @@ def _paragraph_html(block, footnote_ids, page_index, body_size,
                     and out[-1].isalnum() and s[:1].isalnum()):
                 out += " "
             if is_ref:
-                ph = chr(FOOTNOTE_PLACEHOLDER_BASE + counter[0])
-                counter[0] += 1
-                placeholders[ph] = stripped
-                out += ph
+                out += "\x00FNREF:%d:%s\x00" % (page_index, stripped)
             else:
                 out += s
             prev_style = style
         return out
 
     raw = _assemble_block(block, join)
-    escaped = html.escape(raw)
-    for ph, num in placeholders.items():
-        escaped = escaped.replace(ph,
-            '<sup class="fulltext-footref"><a href="#fn-%d-%s" id="fnref-%d-%s">%s</a></sup>'
-            % (page_index, num, page_index, num, html.escape(num)))
-    return escaped
+    return html.escape(raw)
+
+
+def _resolve_footrefs(html_text, footnote_bodies):
+    """Replace every \\x00FNREF:page:n\\x00 marker left by _paragraph_html
+    with its final <sup> markup, once every footnote's body text is known
+    (footnote_bodies: {(page_index, marker_str): body_html}). Mirrors the
+    in-text citation reference's hover-tooltip pattern (.cite-tooltip) so
+    hovering a footnote number works the same way as hovering a citation."""
+    def repl(m):
+        page_index, marker = int(m.group(1)), m.group(2)
+        fid = "fn-%d-%s" % (page_index, marker)
+        refid = "fnref-%d-%s" % (page_index, marker)
+        body = footnote_bodies.get((page_index, marker), "")
+        tooltip = ('<span class="cite-tooltip">%s</span>' % body) if body else ""
+        return ('<sup class="fulltext-footref"><a href="#%s" id="%s">%s</a>%s</sup>'
+                % (fid, refid, html.escape(marker), tooltip))
+    return FOOTREF_MARKER_RE.sub(repl, html_text)
 
 
 def _render_clip(page, rect, zoom=2.0):
@@ -420,7 +434,7 @@ def _extract(pdf_path, fig_url_prefix, ignore_toc):
                                              body_size, skip_leading_marker=True)
                 fid = "fn-%d-%s" % (page_index, marker)
                 refid = "fnref-%d-%s" % (page_index, marker)
-                footnotes.append((fid, refid, marker, body_html))
+                footnotes.append((page_index, marker, fid, refid, body_html))
                 continue
 
             if i in fig_rects:
@@ -465,13 +479,17 @@ def _extract(pdf_path, fig_url_prefix, ignore_toc):
                     figures.append((name, png))
                     parts.append(_figure_html(fig_url_prefix + name, ""))
 
+    footnote_bodies = {(page_index, marker): body_html
+                        for page_index, marker, fid, refid, body_html in footnotes}
+    html_out = _resolve_footrefs("".join(parts), footnote_bodies)
+
     if footnotes:
         items = "".join(
             '<li id="%s" value="%s">%s '
             '<a class="footnote-backref" href="#%s" aria-label="Back to text">↩</a></li>'
             % (fid, marker, body_html, refid)
-            for fid, refid, marker, body_html in footnotes)
-        parts.append('<section class="fulltext-footnotes" aria-label="Footnotes">'
+            for page_index, marker, fid, refid, body_html in footnotes)
+        html_out += ('<section class="fulltext-footnotes" aria-label="Footnotes">'
                      '<ol>%s</ol></section>' % items)
 
-    return {"html": "".join(parts), "figures": figures}
+    return {"html": html_out, "figures": figures}

@@ -259,6 +259,37 @@ def text_of(node):
     return re.sub(r"\s+([,.;:])", r"\1", text)
 
 
+BIBTEX_ENTRY_RE = re.compile(r"^\s*(@\w+\{)([^,]*),(.*)\}\s*$", re.DOTALL)
+
+
+def _format_bibtex(text):
+    """OJS's citationstylelanguage/download/bibtex endpoint returns the
+    whole entry as one unbroken line - not a bug, just not how anyone
+    reads or edits a .bib file. Reformat to the conventional one-field-
+    per-line layout, splitting only on commas OUTSIDE {...} braces so a
+    field's own internal commas (e.g. an author list, "Last, First and
+    Last2, First2") aren't mistaken for field separators.
+    """
+    m = BIBTEX_ENTRY_RE.match(text)
+    if not m:
+        return text
+    prefix, key, body = m.group(1), m.group(2), m.group(3)
+    fields, depth, current = [], 0, ""
+    for ch in body:
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+        if ch == "," and depth == 0:
+            fields.append(current.strip())
+            current = ""
+        else:
+            current += ch
+    if current.strip():
+        fields.append(current.strip())
+    return "%s%s,\n  %s\n}" % (prefix, key, ",\n  ".join(fields))
+
+
 def scrape_journal():
     print("Scraping journal homepage ...")
     url = JOURNAL + "/index"
@@ -516,7 +547,8 @@ def scrape_article(url_path, issue):
             # best-effort: a transient failure here just falls back to the
             # download link, it doesn't need to abort the whole scrape.
             try:
-                art[fmt + "Text"] = get(art[fmt + "Url"]).text
+                text = get(art[fmt + "Url"]).text
+                art[fmt + "Text"] = _format_bibtex(text) if fmt == "bibtex" else text
             except Exception:
                 art[fmt + "Text"] = ""
 
