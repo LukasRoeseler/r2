@@ -172,7 +172,10 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .dropdown a:not(.btn):hover { background: rgba(255, 255, 255, .12); }
 .dropdown a { white-space: nowrap; }
 .nav-toggle, .nav-toggle-label { display: none; }
-@media (min-width: 1121px) {
+/* Range syntax (not min-width: 1121px) so this is the exact complement of
+   the max-width: 1120px query below, with no fractional-viewport-width gap
+   between them. */
+@media (width > 1120px) {
   .dropdown { position: absolute; top: 100%; left: 0; }
 }
 
@@ -291,6 +294,10 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   border-radius: var(--radius); box-shadow: var(--shadow); display: block;
 }
 .issue-feature-body h3 { font-size: 1.35rem; margin: 0 0 .3rem; }
+/* An issue with no cover (issue.cover falsy) renders no first grid item, so
+   .issue-feature-body ends up alone in the 110px/1fr grid and would
+   otherwise be squeezed into that narrow first column. */
+.issue-feature-body:only-child { grid-column: 1 / -1; }
 
 /* Subtle callout treatment for the "Under Review" card - it's live,
    editable content rather than a fixed published issue, so it earns a
@@ -397,6 +404,10 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .issue-articles:not([open]) > summary::before { content: "▸ "; }
 .issue-header { display: grid; grid-template-columns: 165px 1fr; gap: 2rem; align-items: start; margin-bottom: 2rem; }
 .issue-cover-lg { max-width: 165px; }
+/* Same reasoning as .issue-feature-body:only-child above - no cover means
+   the title/meta div is alone in the grid and shouldn't be squeezed into
+   the 165px cover column. */
+.issue-header > div:only-child { grid-column: 1 / -1; }
 .toc-section-title {
   font-size: 1rem; text-transform: uppercase; letter-spacing: .12em;
   color: var(--accent-deep); border-bottom: 2px solid var(--accent-soft);
@@ -557,6 +568,10 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .fulltext-body[data-bg="dark"] .fulltext-footref a { color: #8fd0ff; }
 .fulltext-body[data-bg="dark"] .fulltext-footnotes { border-top-color: #34404c; color: #b8c4d0; }
 .fulltext-body[data-bg="dark"] .footnote-backref { color: #8697a8; }
+/* .cite-tooltip's own background (var(--ink)) is byte-identical to this
+   dark reading background, so without an override the tooltip box is
+   invisible here - only its text and a barely-visible same-hue shadow show. */
+.fulltext-body[data-bg="dark"] .cite-tooltip { background: #26313d; border: 1px solid #34404c; }
 
 /* In-text citations, hoverable to show the matching full reference (from
    OJS's own reference list, not the PDF's copy of it). */
@@ -621,7 +636,10 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
    (and clickable) even when the sidebar itself is display:none - otherwise
    collapsing removes the only way to expand it again. */
 .sidebar-toggle { display: none; }
-@media (min-width: 901px) {
+/* Range syntax (not min-width: 901px) so this is the exact complement of
+   the max-width: 900px query below, with no fractional-viewport-width gap
+   between them. */
+@media (width > 900px) {
   .sidebar-toggle {
     display: flex; align-items: center; justify-content: center;
     position: absolute; top: 2px; right: calc(300px - 15px); width: 30px; height: 30px;
@@ -994,7 +1012,7 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 @media (max-width: 1120px) {
   .header-inner { flex-wrap: wrap; padding-top: .6rem; padding-bottom: .6rem; }
   .nav-toggle-label {
-    display: block; margin-left: auto; cursor: pointer; padding: .6rem;
+    display: block; margin-left: auto; cursor: pointer; padding: .8rem;
   }
   .nav-toggle-label span, .nav-toggle-label span::before, .nav-toggle-label span::after {
     display: block; width: 24px; height: 2.5px; background: #fff;
@@ -1009,7 +1027,6 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
   .site-nav a:not(.btn), .nav-dropdown > summary { padding: .75rem .7rem; font-size: 1rem; }
   .site-nav .nav-login a { font-size: .85rem; }
   .dropdown { border: none; box-shadow: none; padding-left: 1rem; }
-  .nav-toggle-label { padding: .8rem; }
   .nav-cta { margin: .6rem 0 0; }
 }
 @media (max-width: 760px) {

@@ -158,8 +158,8 @@ def journal_path(url):
     Handles both the short and the index.php URL forms.
     """
     for base in (JOURNAL_ALT, JOURNAL):
-        if url.startswith(base + "/"):
-            rest = url[len(base) + 1:]
+        if url == base or url.startswith(base + "/"):
+            rest = url[len(base):]
             return rest.split("#")[0].split("?")[0].strip("/")
     return None
 
@@ -820,7 +820,7 @@ def _site_base_path():
     because GoatCounter records the full pathname visitors see, including
     that prefix. Mirrors build.py's BASE_URL normalisation.
     """
-    base = os.environ.get("BASE_URL", "/r2/").strip() or "/r2/"
+    base = os.environ.get("BASE_URL", "/").strip() or "/"
     if not base.startswith("/"):
         base = "/" + base
     if not base.endswith("/"):

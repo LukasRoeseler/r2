@@ -305,17 +305,33 @@ if (window.matchMedia('(max-width: 900px)').matches) {
   // off can cleanly restore it, rather than trying to un-bold in place.
   var pristineHtml = content.innerHTML;
   var bionicApplied = false;
-  function bionicWord(word) {
-    var boldLen = Math.max(1, Math.ceil(word.length * 0.5));
-    return '<b>' + word.slice(0, boldLen) + '</b>' + word.slice(boldLen);
-  }
   function walkBionic(node) {
     if (node.nodeType === 3) {
-      if (!node.nodeValue.trim()) return;
-      var span = document.createElement('span');
-      span.innerHTML = node.nodeValue.replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/\S+/g, bionicWord);
-      node.replaceWith.apply(node, Array.prototype.slice.call(span.childNodes));
+      var text = node.nodeValue;
+      if (!text.trim()) return;
+      // Build actual text/<b> DOM nodes instead of an HTML string, so literal
+      // &/</> characters in real text (e.g. "Dreber & Johannesson") never
+      // get run through a manual escape-then-reparse round trip.
+      var frag = document.createDocumentFragment();
+      var wordRe = /\S+/g;
+      var lastIndex = 0;
+      var match;
+      while ((match = wordRe.exec(text))) {
+        if (match.index > lastIndex) {
+          frag.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+        }
+        var word = match[0];
+        var boldLen = Math.max(1, Math.ceil(word.length * 0.5));
+        var b = document.createElement('b');
+        b.textContent = word.slice(0, boldLen);
+        frag.appendChild(b);
+        frag.appendChild(document.createTextNode(word.slice(boldLen)));
+        lastIndex = wordRe.lastIndex;
+      }
+      if (lastIndex < text.length) {
+        frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+      }
+      node.replaceWith(frag);
     } else if (node.nodeType === 1 && !node.classList.contains('cite-tooltip')) {
       Array.prototype.slice.call(node.childNodes).forEach(walkBionic);
     }
@@ -326,7 +342,14 @@ if (window.matchMedia('(max-width: 900px)').matches) {
     if (wantOn) {
       walkBionic(content);
     } else {
+      // pristineHtml was captured before base.html's end-of-body script had
+      // decorated external links with target/rel - restoring it verbatim
+      // would silently undo that decoration, so redo it on the restored
+      // subtree (window.r2DecorateExternalLinks is always defined by the
+      // time a user can actually click this, since it only runs from a
+      // later click, never during the initial synchronous page parse).
       content.innerHTML = pristineHtml;
+      if (window.r2DecorateExternalLinks) window.r2DecorateExternalLinks(content);
     }
     bionicApplied = wantOn;
   }
@@ -372,7 +395,11 @@ if (window.matchMedia('(max-width: 900px)').matches) {
   });
 
   apply();
-  syncSidebarToWidth();
+  // Not called at init: the sidebar's own IIFE above already restores its
+  // own persisted collapse state independent of width, and calling this
+  // here would immediately overwrite that stored preference (e.g. force it
+  // back open) on every page whose width prefs isn't "wide" - it should
+  // only fire in reaction to the user actively picking "wide" (below).
 })();
 
 document.querySelectorAll('.cite-box .copy-btn').forEach(function (btn) {
@@ -393,7 +420,7 @@ document.querySelectorAll('.cite-box .copy-btn').forEach(function (btn) {
       ta.style.opacity = '0';
       document.body.appendChild(ta);
       ta.select();
-      try { document.execCommand('copy'); done(); } catch (e) {}
+      try { if (document.execCommand('copy')) done(); } catch (e) {}
       document.body.removeChild(ta);
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {

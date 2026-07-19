@@ -3,11 +3,11 @@
 <section class="hero hero-compact">
   <div class="wrap">
     <p class="hero-kicker">Diamond Open Access · ISSN {{ journal.issn }}</p>
-    <div class="hero-logo" role="img" aria-label="{{ journal.name }}">
+    <h1 class="hero-logo" role="img" aria-label="{{ journal.name }}">
       <img src="{{ base }}static/img/logo-black.png" alt="" width="1841" height="355">
       <span class="logo-color" aria-hidden="true"></span>
       <script>r2RandomizeLogoColor(document.currentScript.previousElementSibling)</script>
-    </div>
+    </h1>
     <p class="hero-tagline">Replication Research is a diamond open-access and researcher-led journal.<br>We publish reproductions, replications, and conceptual articles concerned with repeatability.</p>
     <div class="hero-actions">
       <span class="btn-split">
@@ -200,9 +200,15 @@
   function numPages() { return Math.max(1, Math.ceil(n / perPage())); }
 
   function apply(withTransition) {
-    var pp = perPage();
     track.style.transition = withTransition === false ? 'none' : '';
-    track.style.transform = 'translateX(-' + (position * 100 / pp) + '%)';
+    // Measuring the real offsetLeft of the target tile (rather than assuming
+    // each tile is exactly 100%/pp of the track) accounts for the flex gap
+    // between tiles, which a pure percentage formula ignores - that gap
+    // otherwise accumulates into a growing drift each page, worst at the
+    // wrap-reset step (position = n).
+    var targetTile = track.children[position];
+    var offset = targetTile ? targetTile.offsetLeft : 0;
+    track.style.transform = 'translateX(-' + offset + 'px)';
     Array.from(dotsWrap.children).forEach(function (d, i) {
       d.classList.toggle('is-active', i === page);
     });

@@ -28,10 +28,38 @@ LIVE_BASE = "https://replicationresearch.github.io/"
 MAIN_RE = re.compile(r'<main id="main">(.*)</main>', re.DOTALL)
 HEADER_RE = re.compile(r'(<header class="site-header">.*?</header>)', re.DOTALL)
 FOOTER_RE = re.compile(r'(<footer class="site-footer">.*?</footer>)', re.DOTALL)
-PDF_PREVIEW_RE = re.compile(
-    r'<section class="pdf-preview" id="preview">.*?</section>', re.DOTALL)
+PDF_TAB_RE = re.compile(
+    r'<button class="view-tab is-active" type="button" role="tab"\s*'
+    r'id="tab-pdf" aria-controls="panel-pdf" aria-selected="true">PDF</button>')
+PDF_PANEL_RE = re.compile(
+    r'<div class="view-panel is-active" role="tabpanel" id="panel-pdf" '
+    r'aria-labelledby="tab-pdf">.*?</div>', re.DOTALL)
+HTML_TAB_INACTIVE_RE = re.compile(
+    r'<button class="view-tab" type="button" role="tab"\s*'
+    r'id="tab-html" aria-controls="panel-html"\s*'
+    r'aria-selected="false">')
+HTML_PANEL_HIDDEN_RE = re.compile(
+    r'<div class="view-panel" role="tabpanel"\s*'
+    r'id="panel-html" aria-labelledby="tab-html" hidden>')
+# Anchored on the (stable, distinctive) preceding goatcounter <script> tag
+# rather than matching this script's own internal implementation details -
+# the latter previously broke silently the moment that script's JS was
+# refactored, since the regex no longer matched anything.
 EXTERNAL_SCRIPT_RE = re.compile(
-    r'<script>\s*\(function \(\) \{\s*var host.*?</script>', re.DOTALL)
+    r'<script data-goatcounter=.*?</script>\s*(<script>.*?</script>)', re.DOTALL)
+
+# Every id="..." within one page's own content is only guaranteed unique
+# within that standalone page, not across the many pages concatenated into
+# the single-file snapshot (template-static ids like tab-html/panel-html/
+# fulltext-settings, article-scoped-but-not-globally-scoped footnote ids
+# like fn-2-1, and coincidentally-matching auto-generated heading ids from
+# Quarto-authored guide content all collide this way) - namespace_page_ids()
+# finds every id in a page's content and prefixes it, its HTML references
+# (href="#...", aria-controls, aria-labelledby, for), and any
+# getElementById('...') call in that same content's inline scripts.
+ID_ATTR_RE = re.compile(r'\bid="([^"]+)"')
+ID_REF_RE = re.compile(r'\b(href="#|aria-controls="|aria-labelledby="|for=")([^"]+)"')
+GET_ELEMENT_BY_ID_RE = re.compile(r"getElementById\((['\"])([^'\"]+)\1\)")
 
 
 def read(path):
@@ -143,8 +171,63 @@ def strip_pdf_previews(html):
     """Drop the embedded pdf.js iframe per article - it loads a whole
     separate app plus the PDF over relative paths that don't exist once this
     is one offline file. The aside's Download PDF button (an absolute,
-    external OJS URL) still gets people to the PDF."""
-    return PDF_PREVIEW_RE.sub("", html)
+    external OJS URL) still gets people to the PDF. The PDF tab/panel share
+    a <section> with the extracted HTML full-text tab, so only that inner
+    panel is dropped, not the whole section - and if a PDF panel was in fact
+    removed, the HTML tab (previously hidden behind it) becomes the default
+    view instead of being hidden with nothing showing above it."""
+    had_pdf_panel = PDF_PANEL_RE.search(html) is not None
+    html = PDF_TAB_RE.sub("", html)
+    html = PDF_PANEL_RE.sub("", html)
+    if had_pdf_panel:
+        html = HTML_TAB_INACTIVE_RE.sub(
+            '<button class="view-tab is-active" type="button" role="tab" '
+            'id="tab-html" aria-controls="panel-html" aria-selected="true">',
+            html)
+        html = HTML_PANEL_HIDDEN_RE.sub(
+            '<div class="view-panel is-active" role="tabpanel" '
+            'id="panel-html" aria-labelledby="tab-html">',
+            html)
+    return html
+
+
+def namespace_page_ids(html, anchor):
+    """Every page becomes one <section> among many concatenated into a
+    single file, so any id="..." that's only unique within one standalone
+    page (template-static ones like tab-html/panel-html/fulltext-settings,
+    the article-views section's own id="preview", article-scoped footnote
+    ids like fn-2-1, or two unrelated pages' Quarto-generated heading ids
+    that happen to match) collides across pages here. Finds every id in
+    this page's own content and prefixes it, its HTML references
+    (href="#...", aria-controls, aria-labelledby, for), and any
+    getElementById('...') call in this same content's inline scripts -
+    the latter matters because at least one script (the reading-options
+    panel's) looks its elements up by a hardcoded id string rather than by
+    reading an aria-controls-style attribute back off the DOM, so renaming
+    the id without also updating that call would silently break the whole
+    panel for every article in the snapshot.
+    """
+    ids = set(ID_ATTR_RE.findall(html))
+    if not ids:
+        return html
+
+    html = ID_ATTR_RE.sub(lambda m: 'id="%s--%s"' % (anchor, m.group(1)), html)
+
+    def ref_repl(m):
+        prefix, value = m.group(1), m.group(2)
+        if value in ids:
+            return '%s%s--%s"' % (prefix, anchor, value)
+        return m.group(0)
+    html = ID_REF_RE.sub(ref_repl, html)
+
+    def js_repl(m):
+        quote, value = m.group(1), m.group(2)
+        if value in ids:
+            return "getElementById(%s%s--%s%s)" % (quote, anchor, value, quote)
+        return m.group(0)
+    html = GET_ELEMENT_BY_ID_RE.sub(js_repl, html)
+
+    return html
 
 
 def inline_css():
@@ -236,6 +319,7 @@ def main():
             continue
         content = extract_main(read(full))
         content = strip_pdf_previews(content)
+        content = namespace_page_ids(content, anchor)
         sections.append(
             '<section class="snapshot-page" id="%s">%s%s</section>'
             % (anchor, build_path_bar(anchor, label), content))
@@ -284,7 +368,7 @@ def main():
         inline_css(),
         SNAPSHOT_CSS,
         body,
-        external_link_script.group(0),
+        external_link_script.group(1),
     )
 
     out_path = os.path.join(SITE, "r2-mirror-snapshot.html")

@@ -105,17 +105,24 @@ function r2RandomizeLogoColor(el) {
         async src="//gc.zgo.at/count.js"></script>
 <script>
 (function () {
-  var host = window.location.hostname;
-  document.querySelectorAll('a[href]').forEach(function (a) {
-    var href = a.getAttribute('href');
-    if (!href || href.charAt(0) === '#' || /^(mailto:|tel:|javascript:)/i.test(href)) return;
-    try {
-      if (new URL(href, window.location.href).hostname !== host) {
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-      }
-    } catch (e) {}
-  });
+  // Exposed so other inline scripts can re-decorate a subtree they've
+  // rebuilt from an HTML-string snapshot taken before this ran (e.g.
+  // article.html's bionic-reading toggle restoring its pristine HTML).
+  function decorateExternalLinks(root) {
+    var host = window.location.hostname;
+    root.querySelectorAll('a[href]').forEach(function (a) {
+      var href = a.getAttribute('href');
+      if (!href || href.charAt(0) === '#' || /^(mailto:|tel:|javascript:)/i.test(href)) return;
+      try {
+        if (new URL(href, window.location.href).hostname !== host) {
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+        }
+      } catch (e) {}
+    });
+  }
+  window.r2DecorateExternalLinks = decorateExternalLinks;
+  decorateExternalLinks(document);
 })();
 </script>
 </body>

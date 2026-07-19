@@ -181,6 +181,8 @@ SURNAME_RE = re.compile(
     r"([A-ZÀ-Þ][\w'’.\-]*(?:\s[A-ZÀ-Þ][\w'’\-]*)?)"
     r"\s*,\s*[A-ZÀ-Þ]\.")
 
+TAG_RE = re.compile(r"<[^>]*>")
+
 
 def _reference_html(p):
     """Inner HTML of a reference <p>, whitespace-collapsed but with any
@@ -285,7 +287,17 @@ def link_citations(fulltext_html, references_html):
                 '<span class="cite-tooltip">%s</span></span>'
                 % (surface, lookup[surface]))
 
-    return pattern.sub(repl, fulltext_html)
+    # Substitute only in the text between tags, never inside a tag itself -
+    # a figure caption (rendered into alt="...") that happens to match a
+    # citation surface would otherwise get tooltip markup injected into the
+    # attribute value, breaking it.
+    tags = TAG_RE.findall(fulltext_html)
+    parts = TAG_RE.split(fulltext_html)
+    out = [pattern.sub(repl, parts[0])]
+    for tag, part in zip(tags, parts[1:]):
+        out.append(tag)
+        out.append(pattern.sub(repl, part))
+    return "".join(out)
 
 
 def build_articles_index(articles):
@@ -711,10 +723,11 @@ def team_with_photos(team):
     return team
 
 
-def excerpt(html, length=220):
+def excerpt(fragment, length=220):
     """Plain-text preview of an HTML fragment."""
-    text = re.sub(r"<[^>]+>", " ", html or "")
-    text = re.sub(r"\s+", " ", text).replace("&nbsp;", " ").strip()
+    text = re.sub(r"<[^>]+>", " ", fragment or "")
+    text = html.unescape(text)
+    text = re.sub(r"\s+", " ", text).strip()
     return text[:length].rsplit(" ", 1)[0] + "…" if len(text) > length else text
 
 
