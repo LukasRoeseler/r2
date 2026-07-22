@@ -1,5 +1,6 @@
 [
  {
+  "abstractHtml": "<p>Foxworth et al. (2022) examine the influence of partisanship, along with socio-economic factors, on the spread of COVID-19 among Native American tribes and conclude that tribes in states with Republican governors and where Trump received more votes in the 2016 election fared worse. While their argument and findings sound plausible, the study is flawed methodologically. The most significant issue is that the analysis focuses on the count of cases while not accounting adequately for vast differences in the population of the tribes. Re-analyze the data, I demonstrate that partisanship does appear to be correlated with the spread of COVID-19, but the magnitude of the effect is an order of magnitude smaller than that implied by Foxworth et al.’s (2022) analysis. However, the large proportion of tribes that register no COVID cases casts doubts on those findings, as it is unclear whether these represent the actual absence of COVID or issues with the data collection.</p>",
   "authors": [
    {
     "affiliation": "",
@@ -9,6 +10,7 @@
   ],
   "handlingEditor": "Lukas Wallrich, SRC: Flavio Azevedo",
   "id": "11",
+  "laySummary": "",
   "preprintUrl": "https://doi.org/10.31235/osf.io/zh56a_v1",
   "prereviewUrl": "https://prereview.org/preprints/doi-10.31235-osf.io-zh56a_v1/write-a-prereview",
   "pubpeerUrl": "",
@@ -17,6 +19,7 @@
   "title": "Re-analyzing ``I Hope to Hell Nothing Goes Back to The Way It Was Before'': COVID-19, Marginalization, and Native Nations"
  },
  {
+  "abstractHtml": "<p>Labels are often advantageous for category learning. However, this may not be true for children as they learn subordinate, fine-grained object categories. In preparation for future research on subordinate category learning in children, we aimed to refine a procedure investigating the label advantage during subordinate category learning in adults. Thus, we conducted an online replication of Experiment 2 from Lupyan, Rakison, & McClelland (2007), which compares category learning under an auditory or written label condition versus a no label and non-linguistic cue condition in adults. We failed to replicate the key result, that those who received labels learned the categories faster.</p>",
   "authors": [
    {
     "affiliation": "",
@@ -36,6 +39,7 @@
   ],
   "handlingEditor": "Lydia Riedl",
   "id": "9",
+  "laySummary": "",
   "preprintUrl": "https://doi.org/10.31234/osf.io/5e8mz_v1",
   "prereviewUrl": "https://prereview.org/preprints/doi-10.31234-osf.io-5e8mz_v1/write-a-prereview",
   "pubpeerUrl": "",
@@ -44,6 +48,7 @@
   "title": "Are Redundant Labels Helpful during Category Learning? Replication of Lupyan, Rakison, & McClelland (2007)"
  },
  {
+  "abstractHtml": "<p>Replication studies play an important role in scientific knowledge generation, but researchers lack a coherent account of how to conclude whether a finding has been replicated. This paper provides such an account by connecting methodological falsificationism and the Neyman-Pearson approach to statistical inferences in the context of the analysis of replication studies. From this perspective, the goal of a replication study is to examine whether the same basic statement that was made in an original study can also be made when new data are collected in a faithful empirical realization of the original test. If the original study made an ordinal claim based on a statistical decision rule, the replication study should evaluate whether the same claim can be made using the same inferential criterion. We argue that the original effect size estimate should also be treated as part of the original claim, and therefore that replication studies should additionally examine whether the effect size differs meaningfully from the original estimate. We illustrate how such comparisons can be performed for correlations by using equivalence tests and point out the importance of reflecting on which difference between replication studies is large enough to matter. More broadly, we argue that researchers should choose an analysis strategy for replication studies where their philosophy of science and statistical framework are coherently aligned.</p>",
   "authors": [
    {
     "affiliation": "",
@@ -73,6 +78,7 @@
   ],
   "handlingEditor": "Ingmar Visser",
   "id": "8",
+  "laySummary": "",
   "preprintUrl": "https://doi.org/10.31234/osf.io/7ydgu_v1",
   "prereviewUrl": "https://prereview.org/preprints/doi-10.31234-osf.io-7ydgu_v1/write-a-prereview",
   "pubpeerUrl": "",
@@ -81,6 +87,7 @@
   "title": "How to analyze a replication study"
  },
  {
+  "abstractHtml": "<p>This replication study critically examines the findings and conclusions of Forster and Neugebauer (2024), who question the external validity of factorial surveys in capturing real-world behavior. Using the publicly available data from the original study, we reassess the effects of educational signals and ethnic origin. Our analyses show that the original results do not withstand all robustness checks and that theoretically derived effect heterogeneities across occupational fields provide more nuanced explanations. These findings challenge the general claim that factorial surveys are unsuitable for studying hiring processes and instead underscore the importance of context-sensitive modeling. We argue that factorial surveys remain a valuable methodological tool, particularly when heterogeneity is explicitly addressed in both design and analysis.</p>",
   "authors": [
    {
     "affiliation": "",
@@ -100,6 +107,7 @@
   ],
   "handlingEditor": "Susanne Adler",
   "id": "7",
+  "laySummary": "",
   "preprintUrl": "https://doi.org/10.31235/osf.io/zk2ar_v2",
   "prereviewUrl": "https://prereview.org/preprints/doi-10.31235-osf.io-zk2ar_v2/write-a-prereview",
   "pubpeerUrl": "",
@@ -108,6 +116,7 @@
   "title": "Too Soon to Dismiss? A Reanalysis of Forster and Neugebauer (2024) Highlighting the Role of Effect Heterogeneity in Evaluating Factorial Surveys"
  },
  {
+  "abstractHtml": "<p>Maintaining anonymity in natural language communication remains a challenging task. Even when the number of candidate authors is large, standard authorship attribution techniques that analyze writing style predict the original author with uncomfortably high accuracy. Adversarial stylometry provides a defense against authorship attribution, helping users avoid unwanted deanonymization. This paper reproduces and replicates experiments from a seminal study of defenses against authorship attribution (Brennan et al., 2012). After reproducing the experiment using the original data, we then replicate the experiment by repeating the online field experiment using the procedures described in the original paper. Although we reach the same conclusion as the original paper, our results suggest that the defenses studied may be overstated in their effectiveness. This is largely due to the absence of a control group in the original study. In our replication, we find evidence suggesting that an entirely automatic method, round-trip translation, warrants re-examination because it appears to reduce the effectiveness of established authorship attribution methods.</p>",
   "authors": [
    {
     "affiliation": "",
@@ -127,6 +136,7 @@
   ],
   "handlingEditor": "Elen Le Foll",
   "id": "4",
+  "laySummary": "In some situations, one may not want the reader of a text to know who the author is. This study repeated and extended a previous experiment on disguising a person's writing style to avoid author identification. It confirmed that changing writing style can make texts harder to attribute to their authors but found that the original study likely overstated the effect. The researchers also identified machine translation as a surprisingly promising method for disguising a person's writing style.",
   "preprintUrl": "https://doi.org/10.48550/arXiv.2208.07395",
   "prereviewUrl": "https://prereview.org/preprints/doi-10.48550-arxiv.2208.07395/write-a-prereview",
   "pubpeerUrl": "https://pubpeer.com/publications/65599E54EF6F4F5E1F4C7DAE05E5D0#0",
@@ -135,6 +145,7 @@
   "title": "Reproduction and Replication of an Adversarial Stylometry Experiment"
  },
  {
+  "abstractHtml": "<p>Bol and van de Werfhorst’s article published in 2013 represents a milestone for researchers studying the effect of educational institutions on micro-level outcomes. In the above-mentioned article, tracking and other concepts, like vocational enrolment and vocational specificity, have been operationalized into numerical indicators and then used in regression models in order to establish their associations with individual outcomes. This article points out that Bol and van de Werfhorst’s analyses contain two errors. First, their model specifications disregard the role played by a confounder i.e., political orientation of policy makers. Second, their analytical strategy does not adequately correct for the fact that the dependent variables are estimated from external data. I replicate their analyses regarding social inequality of educational attainment (OE) and educational gradient in occupational attainment (ED) correcting for both errors. These new findings do not support the existence of a trade-off between labour market allocation and equality of educational opportunity when it comes to educational and occupational attainment.</p>",
   "authors": [
    {
     "affiliation": "",
@@ -144,6 +155,7 @@
   ],
   "handlingEditor": "Lukas Wallrich",
   "id": "3",
+  "laySummary": "",
   "preprintUrl": "https://doi.org/10.31235/osf.io/2nwft",
   "prereviewUrl": "https://prereview.org/preprints/doi-10.31235-osf.io-2nwft/write-a-prereview",
   "pubpeerUrl": "",
@@ -152,6 +164,7 @@
   "title": "Educational Systems and the Trade-Off between Labour Market Allocation and Equality of Educational Opportunity. A replication of Bol and van de Werfhorst (2013)"
  },
  {
+  "abstractHtml": "<p>The evidential link between Relational Frame Theory (RFT) and Acceptance and Commitment Therapy (ACT) is a matter of on-going debate. Foody et al. (2013) is frequently cited as evidence for ACT’s concept of Self-as-Context and as evidence for the ties between ACT’s middle level clinical terms and the more basic account of language and cognition provided by RFT. However, the failed replication study by Foody et al. (2015) typically goes uncited. Given their importance, I critically re-evaluate the results of both articles. I found several issues, the most important of which was that the central claim does not correspond with the reported analyses. When I extracted summary statistics from both studies and used them to conducte a multiverse analysis, that mapped directly onto the original claim (i.e., that the hierarchy condition reduced distress more than the distinction condition), null results were found under every set of conditions. Taken together, results illustrate how weak or flawed research practices and uncritical citation of results can hinder cumulative science and evidence based clinical practice.</p>",
   "authors": [
    {
     "affiliation": "",
@@ -161,6 +174,7 @@
   ],
   "handlingEditor": "Janik Goltermann",
   "id": "2",
+  "laySummary": "This paper examines whether a well-known therapy, Acceptance and Commitment Therapy (ACT), is truly supported by a theory about how people think and use language. An earlier study is often cited as strong evidence for this link, but a later study that tried to repeat the findings and didn’t get the same results is often overlooked. The author took a look at both studies and found that the main conclusion of the original study doesn’t seem to match what the data actually show. Then, the author used a “multiverse analysis” to explore all the different choices researchers could make when analyzing results. Across all of these choices, the same result appeared every time: there was no clear evidence supporting the original claim.",
   "preprintUrl": "https://doi.org/10.31234/osf.io/ab7de_v5",
   "prereviewUrl": "https://prereview.org/preprints/doi-10.31234-osf.io-ab7de_v5/write-a-prereview",
   "pubpeerUrl": "https://pubpeer.com/publications/10D7996575B6B0A1254EBA83E887F8#0",
@@ -169,6 +183,7 @@
   "title": "No evidence of differences between hierarchical versus distinction relations in self-based ACT exercises: A critical reanalysis of Foody et al. (2013) and Foody et al. (2015)"
  },
  {
+  "abstractHtml": "<p>Abstract\n                <p>\n                  The decoy effect occurs when adding an inferior third option biases choice between two others, even though the decoy is rarely chosen. While robust in value-based decisions, evidence in perceptual tasks is mixed. Using the rhesus-macaque paradigm from Parrish et al. (2015), we tested whether a perceptual decoy effect generalizes to humans. Participants (\n                  <em>n</em>\n                  = 50) completed 400 trials. Contrary to our preregistered prediction, we found no reliable decoy effect. Accuracy improved on the hardest trials (Level 1) when a decoy was present, response times were slower in decoy conditions than baseline, and accuracy was higher for tall versus wide rectangles, consistent with the vertical–horizontal asymmetry. The relatively wide spacing of stimuli may have reduced grouping and attentional clustering; because spacing was not manipulated, this remains a hypothesis for future tests. Results suggest that context effects in perceptual choice operate under narrower boundary conditions than in value-based domains.\n                </p></p>",
   "authors": [
    {
     "affiliation": "",
@@ -183,6 +198,7 @@
   ],
   "handlingEditor": "Steven Verheyen",
   "id": "1",
+  "laySummary": "",
   "preprintUrl": "https://doi.org/10.1101/2025.11.02.686051",
   "prereviewUrl": "https://prereview.org/preprints/doi-10.1101-2025.11.02.686051/write-a-prereview",
   "pubpeerUrl": "https://pubpeer.com/publications/C4BF2B8B86DAC20011B3C841178A5C#0",

@@ -99,6 +99,18 @@
               {% endif %}
             </p>
             {% endif %}
+            {% if r.abstractHtml %}
+            <details class="article-extend">
+              <summary>Abstract</summary>
+              <div class="prose">{{ r.abstractHtml | safe }}</div>
+            </details>
+            {% endif %}
+            {% if r.laySummary %}
+            <details class="article-extend">
+              <summary>Lay Summary</summary>
+              <div class="prose"><p>{{ r.laySummary }}</p></div>
+            </details>
+            {% endif %}
           </li>
           {% endfor %}
         </ul>

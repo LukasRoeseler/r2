@@ -343,6 +343,21 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .article-excerpt { color: var(--ink-soft); font-size: .93rem; margin: 0 0 .6rem; }
 .article-links { margin: .3rem 0 0; }
 
+/* Abstract/Lay Summary disclosures on an under-review article card - each
+   one's own title is the click target, collapsed by default. Same
+   marker-toggle technique as .issue-articles. */
+.article-extend { margin: .5rem 0 0; }
+.article-extend > summary {
+  cursor: pointer; list-style: none; display: inline-block;
+  font-size: .78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--muted);
+}
+.article-extend > summary::-webkit-details-marker { display: none; }
+.article-extend > summary::before { content: "▾ "; }
+.article-extend:not([open]) > summary::before { content: "▸ "; }
+.article-extend .prose { margin-top: .4rem; font-size: .92rem; color: var(--ink-soft); }
+.article-extend .prose p { margin: 0 0 .5rem; }
+
 /* News cards */
 .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.1rem; }
 .news-card {

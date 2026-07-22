@@ -1018,6 +1018,31 @@ def _doi_lookup_get(url, params=None):
     return None
 
 
+JATS_TAG_RE = re.compile(r"</?jats:[a-zA-Z]+[^>]*>")
+JATS_TAG_MAP = {"jats:p": "p", "jats:italic": "em", "jats:bold": "strong",
+                "jats:sup": "sup", "jats:sub": "sub"}
+
+
+def _clean_abstract_html(raw):
+    """Crossref/DataCite abstracts are JATS XML fragments
+    (<jats:p>...</jats:p>, sometimes inline <jats:italic>/<jats:bold>) -
+    map the handful of tags actually expected to plain HTML and strip
+    anything else, rather than leaking literal XML tags to readers.
+    Falls back to wrapping bare (non-JATS) text in a single <p>.
+    """
+    if not raw:
+        return ""
+    text = raw
+    for jats_tag, html_tag in JATS_TAG_MAP.items():
+        text = text.replace("<%s>" % jats_tag, "<%s>" % html_tag)
+        text = text.replace("</%s>" % jats_tag, "</%s>" % html_tag)
+    text = JATS_TAG_RE.sub("", text)
+    text = _unescape_fully(text).strip()
+    if text and not text.startswith("<p>"):
+        text = "<p>%s</p>" % text
+    return text
+
+
 def _crossref_lookup(doi):
     r = _doi_lookup_get("https://api.crossref.org/works/%s" % doi,
                         {"mailto": CROSSREF_MAILTO})
@@ -1034,7 +1059,8 @@ def _crossref_lookup(doi):
                              "orcid": a.get("ORCID") or ""})
     if not title and not authors:
         return None
-    return {"title": title, "authors": authors}
+    return {"title": title, "authors": authors,
+            "abstract": _clean_abstract_html(msg.get("abstract") or "")}
 
 
 def _datacite_lookup(doi):
@@ -1064,7 +1090,12 @@ def _datacite_lookup(doi):
         authors.append({"name": name, "affiliation": "", "orcid": orcid})
     if not title and not authors:
         return None
-    return {"title": title, "authors": authors}
+    abstract = ""
+    for desc in attrs.get("descriptions") or []:
+        if (desc.get("descriptionType") or "").strip().lower() == "abstract":
+            abstract = _clean_abstract_html(desc.get("description") or "")
+            break
+    return {"title": title, "authors": authors, "abstract": abstract}
 
 
 def _doi_metadata(doi):
@@ -1151,6 +1182,8 @@ def fetch_under_review():
             "preprintUrl": doi_url,
             "prereviewUrl": _prereview_url(doi) if doi else "",
             "pubpeerUrl": (row.get("PubPeer Comments") or "").strip(),
+            "abstractHtml": (doi_meta or {}).get("abstract") or "",
+            "laySummary": (row.get("Lay Summary") or "").strip(),
             "status": status,
             "handlingEditor": (row.get("Handling Editor") or "").strip(),
             "submissionDate": _parse_sheet_date(row.get("Submission Date") or ""),
