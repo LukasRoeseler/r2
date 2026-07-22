@@ -88,9 +88,9 @@
             <p class="article-links">
               <a class="pill pill-pdf" href="{{ r.preprintUrl }}">Preprint</a>
               {% if r.prereviewUrl and r.pubpeerUrl %}
-              <span class="pill-split">
-                <a class="split-read" href="{{ r.prereviewUrl }}">Write review</a>
-                <a class="split-dl" href="{{ r.pubpeerUrl }}">Read reviews</a>
+              <span class="pill-split pill-split-outline">
+                <a href="{{ r.prereviewUrl }}">Write review</a>
+                <a href="{{ r.pubpeerUrl }}">Read reviews</a>
               </span>
               {% elif r.prereviewUrl %}
               <a class="pill pill-download" href="{{ r.prereviewUrl }}">Write review</a>

@@ -112,6 +112,14 @@ h1, h2, h3, h4 { font-family: var(--serif); line-height: 1.25; color: var(--ink)
 .split-dl { background: #fff; color: var(--accent-dark); }
 .split-dl:hover { background: var(--accent-soft); }
 
+/* Write review | Read reviews split pill - unlike Read|Download above,
+   neither half is filled; both look like a plain .pill-download pill,
+   with a divider line between them instead of a filled/white contrast. */
+.pill-split-outline { background: transparent; }
+.pill-split-outline a { background: transparent; color: var(--accent-dark); }
+.pill-split-outline a:hover { background: var(--accent-soft); }
+.pill-split-outline a:first-child { border-right: 1.5px solid var(--accent); }
+
 /* Quiet per-article usage numbers at the bottom right of a card. */
 .article-links { display: flex; align-items: center; flex-wrap: wrap; }
 .article-stats {
