@@ -1150,6 +1150,7 @@ def fetch_under_review():
                            if first_author else []),
             "preprintUrl": doi_url,
             "prereviewUrl": _prereview_url(doi) if doi else "",
+            "pubpeerUrl": (row.get("PubPeer Comments") or "").strip(),
             "status": status,
             "handlingEditor": (row.get("Handling Editor") or "").strip(),
             "submissionDate": _parse_sheet_date(row.get("Submission Date") or ""),
