@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Page not found · {{ journal.name }}{% endblock %}
 {% block content %}
+<script>
+// IONOS's retired forwarding endpoint can append its internal fallback path
+// more than once for resolvers that still cache the old www address.
+(function () {
+  var normalized = window.location.pathname.replace(/\/+/g, "/").replace(/\/$/, "");
+  if (normalized === "/defaultsite") window.location.replace("/");
+}());
+</script>
 <div class="wrap page-body page-narrow">
   <h1 class="page-heading">Page not found</h1>
   <p>The page you are looking for does not exist on this mirror.
