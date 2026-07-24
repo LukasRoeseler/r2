@@ -550,6 +550,27 @@ def main():
 
     render("404.html", "404.html")
 
+    # IONOS forwarding can briefly expose its internal /defaultsite fallback
+    # path. Keep that implementation detail from stranding visitors on a 404.
+    defaultsite_redirect = """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=/">
+  <link rel="canonical" href="/">
+  <script>window.location.replace("/");</script>
+  <title>Redirecting…</title>
+</head>
+<body><p><a href="/">Continue to Replication Research</a></p></body>
+</html>
+"""
+    for redirect_path in ("defaultsite.html",
+                          os.path.join("defaultsite", "index.html")):
+        target = os.path.join(OUT, redirect_path)
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "w", encoding="utf-8") as fh:
+            fh.write(defaultsite_redirect)
+
     # Static assets.
     shutil.copytree(os.path.join(ROOT, "assets"), os.path.join(OUT, "assets"))
     shutil.copytree(os.path.join(ROOT, "static"), os.path.join(OUT, "static"))
