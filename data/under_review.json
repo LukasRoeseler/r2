@@ -116,33 +116,23 @@
   "title": "Too Soon to Dismiss? A Reanalysis of Forster and Neugebauer (2024) Highlighting the Role of Effect Heterogeneity in Evaluating Factorial Surveys"
  },
  {
-  "abstractHtml": "<p>Maintaining anonymity in natural language communication remains a challenging task. Even when the number of candidate authors is large, standard authorship attribution techniques that analyze writing style predict the original author with uncomfortably high accuracy. Adversarial stylometry provides a defense against authorship attribution, helping users avoid unwanted deanonymization. This paper reproduces and replicates experiments from a seminal study of defenses against authorship attribution (Brennan et al., 2012). After reproducing the experiment using the original data, we then replicate the experiment by repeating the online field experiment using the procedures described in the original paper. Although we reach the same conclusion as the original paper, our results suggest that the defenses studied may be overstated in their effectiveness. This is largely due to the absence of a control group in the original study. In our replication, we find evidence suggesting that an entirely automatic method, round-trip translation, warrants re-examination because it appears to reduce the effectiveness of established authorship attribution methods.</p>",
+  "abstractHtml": "",
   "authors": [
    {
     "affiliation": "",
-    "name": "Haining Wang",
-    "orcid": ""
-   },
-   {
-    "affiliation": "",
-    "name": "Patrick Juola",
-    "orcid": ""
-   },
-   {
-    "affiliation": "",
-    "name": "Allen Riddell",
+    "name": "Wang",
     "orcid": ""
    }
   ],
   "handlingEditor": "Elen Le Foll",
   "id": "4",
   "laySummary": "In some situations, one may not want the reader of a text to know who the author is. This study repeated and extended a previous experiment on disguising a person's writing style to avoid author identification. It confirmed that changing writing style can make texts harder to attribute to their authors but found that the original study likely overstated the effect. The researchers also identified machine translation as a surprisingly promising method for disguising a person's writing style.",
-  "preprintUrl": "https://doi.org/10.48550/arXiv.2208.07395",
-  "prereviewUrl": "https://prereview.org/preprints/doi-10.48550-arxiv.2208.07395/write-a-prereview",
+  "preprintUrl": "https://arxiv.org/abs/2208.07395v2",
+  "prereviewUrl": "https://prereview.org/preprints/doi-https:--arxiv.org-abs-2208.07395v2/write-a-prereview",
   "pubpeerUrl": "https://pubpeer.com/publications/65599E54EF6F4F5E1F4C7DAE05E5D0#0",
-  "status": "Under review (round 2)",
+  "status": "Editorial Decision Pending (Round 2)",
   "submissionDate": "2026-03-04",
-  "title": "Reproduction and Replication of an Adversarial Stylometry Experiment"
+  "title": "Stylometry"
  },
  {
   "abstractHtml": "<p>Bol and van de Werfhorst’s article published in 2013 represents a milestone for researchers studying the effect of educational institutions on micro-level outcomes. In the above-mentioned article, tracking and other concepts, like vocational enrolment and vocational specificity, have been operationalized into numerical indicators and then used in regression models in order to establish their associations with individual outcomes. This article points out that Bol and van de Werfhorst’s analyses contain two errors. First, their model specifications disregard the role played by a confounder i.e., political orientation of policy makers. Second, their analytical strategy does not adequately correct for the fact that the dependent variables are estimated from external data. I replicate their analyses regarding social inequality of educational attainment (OE) and educational gradient in occupational attainment (ED) correcting for both errors. These new findings do not support the existence of a trade-off between labour market allocation and equality of educational opportunity when it comes to educational and occupational attainment.</p>",

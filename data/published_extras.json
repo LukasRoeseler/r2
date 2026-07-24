@@ -12,5 +12,12 @@
   "materialsUrl": "",
   "peerReviewUrl": "",
   "reproCertUrl": ""
+ },
+ "wang stylometry copy-edited manuscript | replication research": {
+  "dataUrl": "https://doi.org/10.5281/zenodo.18729526",
+  "laySummary": "In some situations, one may not want the reader of a text to know who the author is. This study repeated and extended a previous experiment on disguising a person's writing style to avoid author identification. It confirmed that changing writing style can make texts harder to attribute to their authors but found that the original study likely overstated the effect. The researchers also identified machine translation as a surprisingly promising method for disguising a person's writing style.",
+  "materialsUrl": "",
+  "peerReviewUrl": "",
+  "reproCertUrl": ""
  }
 }
