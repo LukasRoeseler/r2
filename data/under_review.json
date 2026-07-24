@@ -1,5 +1,34 @@
 [
  {
+  "abstractHtml": "<p>We conducted a direct replication of Irving et al. (2022) examining whether a debunking statement reduces mistaken causal inferences from correlational evidence. We randomly allocated participants to read a news article containing either a correction statement (n = 65) or a no-correction control (n = 64). Participants in the correction group made fewer causal inferences (delta = 0.65, 95% HDI [0.30, 1.00]) and more correlational inferences (delta = 0.72, 95% HDI [0.36, 1.07]) compared to the no correction group. In exploratory analyses, we also supported the robustness of their findings to alternative modelling choices. Our findings represent a successful direct replication of Irving et al.</p>",
+  "authors": [
+   {
+    "affiliation": "",
+    "name": "Dhruv Aggarwal",
+    "orcid": "https://orcid.org/0000-0002-1999-6878"
+   },
+   {
+    "affiliation": "",
+    "name": "Keyi Zhang",
+    "orcid": ""
+   },
+   {
+    "affiliation": "",
+    "name": "James Edward Bartlett",
+    "orcid": "https://orcid.org/0000-0002-4191-5245"
+   }
+  ],
+  "handlingEditor": "Tbd",
+  "id": "12",
+  "laySummary": "",
+  "preprintUrl": "https://doi.org/10.31234/osf.io/am6rg_v1",
+  "prereviewUrl": "https://prereview.org/preprints/doi-10.31234-osf.io-am6rg_v1/write-a-prereview",
+  "pubpeerUrl": "",
+  "status": "Initial Editorial Assessment",
+  "submissionDate": "2026-07-24",
+  "title": "Debunking decreases mistaken causal inferences: A direct replication of Irving et al. (2022)"
+ },
+ {
   "abstractHtml": "<p>Foxworth et al. (2022) examine the influence of partisanship, along with socio-economic factors, on the spread of COVID-19 among Native American tribes and conclude that tribes in states with Republican governors and where Trump received more votes in the 2016 election fared worse. While their argument and findings sound plausible, the study is flawed methodologically. The most significant issue is that the analysis focuses on the count of cases while not accounting adequately for vast differences in the population of the tribes. Re-analyze the data, I demonstrate that partisanship does appear to be correlated with the spread of COVID-19, but the magnitude of the effect is an order of magnitude smaller than that implied by Foxworth et al.’s (2022) analysis. However, the large proportion of tribes that register no COVID cases casts doubts on those findings, as it is unclear whether these represent the actual absence of COVID or issues with the data collection.</p>",
   "authors": [
    {
